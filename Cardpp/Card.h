@@ -17,6 +17,7 @@ public:
 	int getIndex() const;
 	int getValue() const;
 	int getSuit() const;
+	int getCountValue() const;
 	bool isHidden() const;
 	void hideCard();
 	void showCard();

@@ -2,8 +2,12 @@
 
 #include <string>
 #include <vector>
+#include <iomanip>
 
 #include "Card.h"
+
+#define DEFAULT_BET 100
+#define DEFAULT_BANK 1000
 
 class Player
 {
@@ -18,12 +22,16 @@ public:
 	bool isCounting() const;
 	bool hasInsurance() const;
 	bool dealerHits() const;
+	bool canDoubleDown() const;
 	int getPosition() const;
+	size_t getHandSize() const;
 	int getBank() const;
+	int getBet() const;
 	int getScore() const;
 	bool isSoft() const;
 	int getShowing() const;
 	bool hasBlackjack() const;
+	void takeBet(int bet);
 
 	void print() const;
 	void printHand() const;
@@ -31,13 +39,17 @@ public:
 	//resets for next round
 	void reset();
 	void dealCard(Card card);
-	void showHoleCard();
+	Card showHoleCard();
 	void setUserControlled();
-	void setPlayerPlaying();
+	void activate();
+	void deactivate();
 	void setStrategy(bool _counting);
 	void takeInsurance();
+	void modBank(double mod);
+	void setBet(int _bet);
+	void setBank(double _bank);
 	
-
+	void dealerCheat();
 private:
 	//True if player is a dealer
 	bool dealer;
@@ -51,10 +63,10 @@ private:
 	//Position on the table
 	int position;
 	std::vector<Card> hand;
-	int bank;
+	double bank;
+	int bet;
 	int score;
 
 	bool updateScore(Card card);
-
 };
 

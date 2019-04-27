@@ -17,8 +17,7 @@ Table::Table(Shoe* _shoe, int _active, int _control, int _strategy) {
 	dealer = new Player("dealer", 0);
 }
 
-Table::~Table()
-{
+Table::~Table(){
 	while(!players.empty()) {
 		delete players.back();
 		players.pop_back();
@@ -31,7 +30,6 @@ void Table::print() const {
 	for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			players[i]->print();
-			std::cout << std::endl;
 		}
 	}
 	dealer->print();
@@ -48,7 +46,7 @@ void Table::setPlayerControl(int _control) {
 void Table::setPlaying(int _active) {
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		if (((_active >> i) & 1) == 1) {
-			players[i]->setPlayerPlaying();
+			players[i]->activate();
 			numPlaying++;
 		}
 	}
@@ -57,8 +55,28 @@ void Table::setPlaying(int _active) {
 void Table::setStrategy(int _strategy) {
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		if (((_strategy >> i) & 1) == 1) {
-			players[i]->setPlayerPlaying();
-			numPlaying++;
+			players[i]->setStrategy(true);
+		}
+	}
+}
+
+
+void Table::placeBets() {
+	double bank = 0;
+	int bet = 0;
+	for (int i = 0; i < MAX_PLAYERS; i++) {
+		if (players[i]->isPlaying()) {
+			bank = players[i]->getBank();
+			bet = players[i]->getBet();
+			if (bank >= bet)
+				players[i]->takeBet(bet);
+			else {
+				std::cout << "Player " << players[i]->getPosition() << " only has $"
+					<< std::fixed << bank << " and cannot bet $" << bet
+					<< "\nThey have left the game.\n";
+				players[i]->deactivate();
+				numPlaying--;
+			}
 		}
 	}
 }
@@ -80,23 +98,31 @@ size_t Table::playRound() {
 	size_t remainingCards = shoe->getSize();
 	Card temp;
 
-	std::cout << "Round " << round << ": " << remainingCards
-		<< " cards remaining.\n" << std::string(57, '-') << std::endl;
+	std::cout << std::string(57, '-') << std::endl << "Round " << round 
+		<< ": " << remainingCards << " cards remaining.\n" 
+		<< std::string(57, '-') << std::endl;
 
 	initDeal();
+	//dealer->dealerCheat();
 	print();
+	
+	//Check up card
+	int dealerShowing = dealer->getShowing();
+	//Insurance only offered with Ace up card.
+	if (dealerShowing == 1) {
+		offerInsurance();
+	}
 
 	busts = 0;
-	for (size_t i = 0; i < MAX_PLAYERS; i++) {
+	for (int i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying())
 			playerTurn(i);
 	}
 	dealerTurn();
 
-	std::cout << std::endl;
 	printWinners();
 
-	for (size_t i = 0; i < MAX_PLAYERS; i++) {
+	for (int i = 0; i < MAX_PLAYERS; i++) {
 		players[i]->reset();
 	}
 	dealer->reset();
@@ -106,34 +132,56 @@ size_t Table::playRound() {
 
 
 void Table::offerInsurance() {
+	char choice = 0;
+	bool valid = false;
+	int runningCount = shoe->getRunningCount();
+	int trueCount = shoe->getTrueCount();
+
 	for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			//Computer players take insurance half of the time.
 			if (!players[i]->isControlled()) {
 				if ((uni(rng) % 2) == 0) {
+					std::cout << "Player " << players[i]->getPosition()
+						<< " takes insurance.\n";
 					players[i]->takeInsurance();
-					std::cout << "\nPlayer " << players[i]->getPosition() 
-						<< " takes insurance.";
 				}
 			}
-			//Need to implement user control still
+			else {
+				std::cout << "Running Count: " << ((runningCount > 0) ? "+" : "") << runningCount
+					<< "\tTrue Count: " << ((trueCount > 0) ? "+" : "") << trueCount << std::endl;
+				std::cout << "Player " << players[i]->getPosition()
+					<< " would you like insurance? Y/N ==> ";
+				while (!valid) {
+					std::cin >> choice;
+					if (toupper(choice) == 'Y') {
+						valid = true;
+						players[i]->takeInsurance();
+						std::cout << "Player " << players[i]->getPosition()
+							<< " takes insurance.\n";
+					}
+					else if (toupper(choice) == 'N') {
+						valid = true;
+						std::cout << "Player " << players[i]->getPosition()
+							<< " declines insurance.\n";
+					}
+					else {
+						std::cout << "Please enter valid choice. Y/N ==> ";
+					}
+				}
+			}
 		}
+		valid = false;
 	}
 }
 
 void Table::playerTurn(int p) {
-	//Check up card
-	int dealerShowing = dealer->getShowing();
-	//Insurance only offered with Ace up card.
-	if (dealerShowing == 1) {
-		offerInsurance();
-	}
 
 	if (!dealer->hasBlackjack()) {
-		//if (!players[p]->isControlled())
+		if (!players[p]->isControlled())
 		computerTurn(p);
-		//else
-			//userTurn(p);
+		else
+			userTurn(p);
 	}
 
 	if (players[p]->getScore() > 21) {
@@ -143,15 +191,15 @@ void Table::playerTurn(int p) {
 
 void Table::computerTurn(int p) {
 	int dealerShowing = dealer->getShowing();
+	double bank = players[p]->getBank();
+	int bet = players[p]->getBet();
 	char decision;
 	bool turn = true;
-
-	std::cout << std::endl;
 	players[p]->print();
 
 	if (players[p]->hasBlackjack()) {
 		turn = false;
-		std::cout << "\nPlayer " << players[p]->getPosition() << " has Blackjack!";
+		std::cout << "Player " << players[p]->getPosition() << " has Blackjack!\n";
 	}
 
 	while (turn) {
@@ -159,25 +207,31 @@ void Table::computerTurn(int p) {
 			BASIC_STRAT_S[players[p]->getScore() - SOFT_MOD][dealerShowing - 1] :
 			BASIC_STRAT_H[players[p]->getScore() - HARD_MOD][dealerShowing - 1]);
 
+		if (decision == 'D' && !players[p]->canDoubleDown())
+			decision = 'H';
+
 		switch (decision) {
 		case 'D': //Double Down
-			std::cout << "\nPlayer " << players[p]->getPosition() << " doubles down.\n";
+
+			std::cout << "Player " << players[p]->getPosition() << " doubles down.\n";
+			players[p]->modBank(-1);
+			players[p]->setBet(2 * bet);
 			hit(p);
-			std::cout << "\nPlayer " << players[p]->getPosition() << " has "
-				<< players[p]->getScore() << ".";
+			std::cout << "Player " << players[p]->getPosition() << " has "
+				<< players[p]->getScore() << ".\n";
 			turn = false;
 			break;
 		case 'S': //Stand
-			std::cout << "\nPlayer " << players[p]->getPosition() << " stands with "
-				<< players[p]->getScore() << ".";
+			std::cout << "Player " << players[p]->getPosition() << " stands with "
+				<< players[p]->getScore() << ".\n";
 			turn = false;
 			break;
 		case 'H': //Hit
-			std::cout << "\nPlayer " << players[p]->getPosition() << " hits.\n";
+			std::cout << "Player " << players[p]->getPosition() << " hits.\n";
 			turn = hit(p);
 			break;
 		default:
-			std::cerr << "\nDecision " << decision << " not recognized.\n";
+			std::cerr << "Decision " << decision << " not recognized.\n";
 			turn = false;
 			break;
 		}
@@ -185,25 +239,89 @@ void Table::computerTurn(int p) {
 }
 
 void Table::userTurn(int p) {
+	int dealerShowing = dealer->getShowing();
+	double bank = players[p]->getBank();
+	int bet = players[p]->getBet();
+	int runningCount = 0,
+		trueCount = 0;
+	char decision;
+	bool turn = true;
+	bool valid = false;
+	bool canDD;
+
+	players[p]->print();
+
+	if (players[p]->hasBlackjack()) {
+		turn = false;
+		std::cout << "Player " << players[p]->getPosition() << " has Blackjack!\n";
+	}
+
+	while (turn) {
+		valid = false;
+		runningCount = shoe->getRunningCount();
+		trueCount = shoe->getTrueCount();
+		canDD = players[p]->canDoubleDown();
+		std::cout << "Running Count: " << ((runningCount > 0) ? "+" : "") << runningCount
+			<< "\tTrue Count: " << ((trueCount > 0) ? "+" : "") << trueCount << std::endl;
+		std::cout << "Player " << players[p]->getPosition() << " make a decision."
+			<< "  (S = Stand" << ((canDD)? "  D = Double Down" : "")
+			<<" H = Hit)  ==> ";
+		while (!valid) {
+			std::cin >> decision;
+			decision = toupper(decision);
+
+			if (decision == 'S' || decision == 'D' || decision == 'H')
+				valid = true;
+			else
+				std::cout << "Please enter valid decision. S/D/H ==> ";
+		}
+
+		switch (decision) {
+		case 'D': //Double Down
+			std::cout << "Player " << players[p]->getPosition() << " doubles down.\n";
+			players[p]->modBank(-1);
+			players[p]->setBet(2 * bet);
+			hit(p);
+			std::cout << "Player " << players[p]->getPosition() << " has "
+				<< players[p]->getScore() << ".\n";
+			turn = false;
+			break;
+		case 'S': //Stand
+			std::cout << "Player " << players[p]->getPosition() << " stands with "
+				<< players[p]->getScore() << ".\n";
+			turn = false;
+			break;
+		case 'H': //Hit
+			std::cout << "Player " << players[p]->getPosition() << " hits.\n";
+			turn = hit(p);
+			break;
+		default:
+			std::cerr << "Decision " << decision << " not recognized.\n";
+			turn = false;
+			break;
+		}
+	}
 }
 
 void Table::dealerTurn() {
+	int dealerScore = dealer->getScore();
+	bool soft = dealer->isSoft();
+	std::cout << "\nShowing Dealer's Hole Card:\n";
+	Card temp = dealer->showHoleCard();
+	shoe->updateCounts(temp);
+	dealer->print();
+
 	if (busts < numPlaying) {
-		int dealerScore = dealer->getScore();
-		bool soft = dealer->isSoft();
-		std::cout << "\n\nShowing Dealer's Hole Card:\n";
-		dealer->showHoleCard();
-		dealer->print();
 		while (dealer->dealerHits()) {
-			std::cout << "\nDealer hits.\n";
+			std::cout << "Dealer hits.\n";
 			dealer->dealCard(shoe->deal());
 			dealer->print();
 			if (dealer->getScore() > 21)
-				std::cout << "\nDealer busted with " << dealer->getScore() << "!";
+				std::cout << "Dealer busted with " << dealer->getScore() << "!\n";
 		}
 
 		if (dealer->getScore() <= 21)
-			std::cout << "\nDealer stands with " << dealer->getScore() << ".";
+			std::cout << "Dealer stands with " << dealer->getScore() << ".\n";
 	}
 	else
 		std::cout << "Everyone busted. Dealer wins!\n";
@@ -214,68 +332,78 @@ bool Table::hit(int p) {
 	players[p]->dealCard(shoe->deal());
 	players[p]->print();
 	if (players[p]->getScore() > 21) {
-		std::cout << "\nPlayer " << players[p]->getPosition() << " Busted with " <<
-			players[p]->getScore() << ".";
+		std::cout << "Player " << players[p]->getPosition() << " Busted with " <<
+			players[p]->getScore() << ".\n";
 		return false;
 	}
 	else
 		return true;
 }
 
-void Table::printWinners() const{
+void Table::printWinners() {
 	std::cout << "\nResults:\n";
 	int dealerScore = dealer->getScore();
 	int score = 0;
+	bool dealerBJ = dealer->hasBlackjack(),
+		playerBJ = false,
+		playerIns = false;
 	for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
-			if (dealer->hasBlackjack()) {
-				if (players[i]->hasInsurance()) {
-					std::cout << "\nPlayer " << players[i]->getPosition() 
-						<< " has insurance."; //wins 2:1 insurance bet
+			playerBJ = players[i]->hasBlackjack();
+			playerIns = players[i]->hasInsurance();
+			if (dealerBJ) {
+				if (playerBJ && playerIns) {
+					std::cout << "Player " << players[i]->getPosition()
+						<< " took even money.\n";
+					players[i]->modBank(2);
 				}
-				else if (players[i]->hasBlackjack()) {
-					std::cout << "\nPlayer " << players[i]->getPosition()
-						<< " has Blackjack too and pushes."; //doesn't lose bet
+				else if (playerIns) {
+					std::cout << "Player " << players[i]->getPosition()
+						<< " has insurance.\n";
+					players[i]->modBank(1);
+				}
+				else if (playerBJ) {
+					std::cout << "Player " << players[i]->getPosition()
+						<< " has Blackjack too and pushes.\n"; //doesn't lose bet
+					players[i]->modBank(1);
 				}
 				else {
-					std::cout << "\nPlayer " << players[i]->getPosition()
-						<< " loses to Blackjack.";
+					std::cout << "Player " << players[i]->getPosition()
+						<< " loses to Blackjack.\n";
 				}
 			}
+			//Dealer does not have Blackjack
 			else {
-				if (players[i]->hasInsurance()) {
+				if (playerIns) {
 					std::cout << "Player " << players[i]->getPosition()
 						<< " loses insurance bet.\n";
 				}
-				if (dealerScore > 21) {
-					if ((score = players[i]->getScore()) <= 21)
-						if (players[i]->hasBlackjack()) {
-							std::cout << "Player " << players[i]->getPosition()
-								<< " wins with Blackjack!\n";
-						}
-						else {
-							std::cout << "Player " << players[i]->getPosition()
-								<< " wins from dealer bust!\n";
-						}
-
-					else
+				if (playerBJ) {
+					std::cout << "Player " << players[i]->getPosition()
+						<< " wins with Blackjack!\n";
+					players[i]->modBank(2.5);
+				}
+				else if (dealerScore > 21) {
+					if ((score = players[i]->getScore()) <= 21) {
 						std::cout << "Player " << players[i]->getPosition()
-						<< " busted with " << score << "!\n";
+							<< " wins from dealer bust!\n";
+						players[i]->modBank(2);
+					}
+					else {
+						std::cout << "Player " << players[i]->getPosition()
+							<< " busted with " << score << "!\n";
+					}
 				}
 				else {
 					if ((score = players[i]->getScore()) > dealerScore && score <= 21) {
-						if (players[i]->hasBlackjack()) {
-							std::cout << "Player " << players[i]->getPosition()
-								<< " wins with Blackjack!\n";
-						}
-						else {
-							std::cout << "Player " << players[i]->getPosition()
-								<< " wins with " << score << "!\n";
-						}
+						std::cout << "Player " << players[i]->getPosition()
+							<< " wins with " << score << "!\n";
+						players[i]->modBank(2);
 					}
 					else if (score == dealerScore) {
 						std::cout << "Player " << players[i]->getPosition()
 							<< " pushes.\n";
+						players[i]->modBank(1);
 					}
 					else if (score > 21) {
 						std::cout << "Player " << players[i]->getPosition()
@@ -287,7 +415,7 @@ void Table::printWinners() const{
 					}
 				}
 			}
-
 		}
 	}
+	std::cout << std::endl;
 }

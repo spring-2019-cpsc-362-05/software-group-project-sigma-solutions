@@ -53,3 +53,11 @@ int Card::getValue(int index) const{
 	else
 		return INDEX_ERR;
 }
+
+int Card::getCountValue() const {
+	if (index >= 2 && index <= 6)
+		return 1;
+	if (index == 1 || (index >= 10 && index <= 13))
+		return -1;
+	return 0;
+}

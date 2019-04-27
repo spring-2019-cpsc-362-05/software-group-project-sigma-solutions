@@ -7,7 +7,7 @@
 
 #define MAX_PLAYERS 8
 
-static const char BASIC_STRAT_H[18][13] = {
+static const char BASIC_STRAT_H[18][13] ={
 	{ 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H' },
 	{ 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H' },
 	{ 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H' },
@@ -56,6 +56,7 @@ public:
 	void userTurn(int p);
 	void offerInsurance();
 	void dealerTurn();
+	void placeBets();
 	
 private:
 	Shoe* shoe;
@@ -72,6 +73,6 @@ private:
 	void initDeal();
 	//returns false if player busts
 	bool hit(int player);
-	void printWinners() const;
+	void printWinners();
 };
 

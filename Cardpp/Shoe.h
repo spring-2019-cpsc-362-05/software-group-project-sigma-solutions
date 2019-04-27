@@ -5,11 +5,13 @@
 #include <random>
 #include <ctime>
 #include <cstdlib>
+
 #include "Card.h"
+#include "Player.h"
 
 static std::random_device rd;
 static std::mt19937 rng(rd());
-static std::uniform_int_distribution<int> uni(15, 30);
+static std::uniform_int_distribution<int> uni(75, 125);
 
 class Shoe
 {
@@ -19,13 +21,17 @@ public:
 	~Shoe();
 	size_t getSize() const;
 	void print() const;
-
+	int getRunningCount() const;
+	int getTrueCount() const;
 
 	void addCard(int index, int suit);
 	void shuffle(int times);
 	Card deal();
 	Card dealHidden();
+	void updateCounts(Card c);
 private:
 	std::vector<Card> cards;
+	int runningCount;
+	int trueCount;
 };
 

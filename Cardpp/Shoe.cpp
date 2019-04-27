@@ -9,7 +9,6 @@ Shoe::~Shoe()
 }
 
 Shoe::Shoe(int decks) {
-
 	for (int d = 0; d < decks; d++) {
 		for (int s = 0; s < 4; s++) {
 			for (int i = 1; i < 14; i++) {
@@ -17,6 +16,8 @@ Shoe::Shoe(int decks) {
 			}
 		}
 	}
+	runningCount = 0;
+	trueCount = 0;
 }
 
 void Shoe::addCard(int index, int suit) {
@@ -24,15 +25,20 @@ void Shoe::addCard(int index, int suit) {
 }
 
 size_t Shoe::getSize() const { return cards.size(); }
+int Shoe::getRunningCount() const { return runningCount; }
+int Shoe::getTrueCount() const { return trueCount; }
+
 
 Card Shoe::deal() {
 	Card temp = cards.back();
+	updateCounts(temp);
 	cards.pop_back();
 	return temp;
 }
 
 Card Shoe::dealHidden() {
-	Card temp = deal();
+	Card temp = cards.back();
+	cards.pop_back();
 	temp.hideCard();
 	return temp;
 }
@@ -49,4 +55,9 @@ void Shoe::print() const {
 		cards[i].print();
 		std::cout << std::endl;
 	}
+}
+
+void Shoe::updateCounts(Card c) {
+	runningCount += c.getCountValue();
+	trueCount = runningCount / ((int)(cards.size() / 52));
 }
