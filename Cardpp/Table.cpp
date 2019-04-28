@@ -494,8 +494,7 @@ void Table::payInsurance() {
 				}
 			}
 			std::cout << std::fixed
-				<< players[p]->collectWinnings(winnings)
-				<< handInfoString(0, p) << std::endl;
+				<< players[p]->collectWinnings(winnings) << std::endl;
 		}
 	}
 	std::cout << std::endl;
