@@ -24,10 +24,10 @@ Table::~Table(){
 	}
 }
 
-size_t Table::getNumPlaying() const { return numPlaying; }
+int Table::getNumPlaying() const { return numPlaying; }
 
 void Table::print() const {
-	for (size_t i = 0; i < MAX_PLAYERS; i++) {
+	for (int i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			players[i]->print();
 		}
@@ -64,10 +64,10 @@ void Table::placeBets() {
 	double bank = 0;
 	int bet = DEFAULT_BET;
 	for (int i = 0; i < MAX_PLAYERS; i++) {
-		shoe->printCounts();
-		std::cout << "Recomended bet: $" << std::fixed 
-			<< bettingRecommendation(i) << std::endl;
 		if (players[i]->isPlaying()) {
+			shoe->printCounts();
+			std::cout << "Recomended bet: $" << std::fixed
+				<< bettingRecommendation(i) << std::endl;
 			bank = players[i]->getBank();
 			if (bank < DEFAULT_BET){
 				std::cout << "Player " << players[i]->getPosition() << " only has $"
@@ -111,8 +111,8 @@ void Table::initDeal() {
 	dealer->dealCard(0, shoe->deal());
 }
 
-size_t Table::playRound() {
-	size_t remainingCards = shoe->getSize();
+int Table::playRound() {
+	int remainingCards = shoe->getSize();
 	Card temp;
 
 	std::cout << std::string(57, '-') << std::endl << "Round " << round 
@@ -153,7 +153,7 @@ void Table::offerInsurance() {
 	int bet;
 	double bank;
 
-	for (size_t i = 0; i < MAX_PLAYERS; i++) {
+	for (int i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			bet = players[i]->getBet();
 			bank = players[i]->getBank();
@@ -171,8 +171,8 @@ void Table::offerInsurance() {
 				}
 				else {
 					shoe->printCounts();
-					std::cout << "You should" << (insuranceRecommendation(i) ?
-						" " : "n't ") << "take insurance.\n";
+					std::cout << "You should" << (insuranceRecommendation(i)? " " : "n't ")
+						<< "take insurance.\n";
 					std::cout << "Player " << players[i]->getPosition()
 						<< " would you like insurance? Y/N ==> ";
 					while (!valid) {
@@ -243,7 +243,7 @@ char Table::basicStrategyDecision(int h, int p) const {
 		decision = BASIC_STRAT_SPLIT[players[p]->hand(h)[0].getIndex() - SPLIT_MOD][dealerShowing - SPLIT_MOD];
 	}
 	else if (players[p]->hand(h).size() == 1) {
-		decision = BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1]);
+		decision = BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1];
 	}
 	else {
 		decision = (players[p]->hand(h).isSoft() ?
@@ -375,9 +375,9 @@ void Table::printWinners() {
 		playerIns = false;
 	int bet;
 	double winnings;
-	for (size_t p = 0; p < MAX_PLAYERS; p++) {
+	for (int p = 0; p < MAX_PLAYERS; p++) {
 		if (players[p]->isPlaying()) {
-			for(size_t h = 0; h < players[p]->getNumHands(); h++){
+			for(int h = 0; h < players[p]->getNumHands(); h++){
 				bet = players[p]->hand(h).getBet();
 				winnings = 0;
 				playerBJ = players[p]->hand(h).hasBlackjack();
@@ -477,7 +477,7 @@ bool Table::validDecision(char decision, bool canDD, bool canSplit) {
 	return false;
 }
 
-std::string Table::handInfoString(size_t h, size_t p) {
+std::string Table::handInfoString(int h, int p) {
 	std::string temp = "";
 	if (players[p]->getNumHands() > 1)
 		temp += (" for Hand " + std::to_string(h + 1));

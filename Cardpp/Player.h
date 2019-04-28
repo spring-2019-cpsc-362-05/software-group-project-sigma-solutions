@@ -24,10 +24,10 @@ public:
 	bool isCounting() const;
 	bool hasInsurance() const;
 	bool dealerHits() const;
-	bool canDoubleDown(size_t h) const;
-	bool canSplit(size_t h) const;
+	bool canDoubleDown(int h) const;
+	bool canSplit(int h) const;
 	int getPosition() const;
-	size_t getNumHands() const;
+	int getNumHands() const;
 	double getBank() const;
 	int getBet() const;
 	int getScore(int i) const;
@@ -36,13 +36,13 @@ public:
 	int getShowing() const;
 	bool hasBlackjack(int i) const;
 
-	Hand& hand(size_t i);
-	bool split(size_t h, int _bet);
+	Hand& hand(int i);
+	bool split(int h, int _bet);
 
 	void print() const;
 	void printPlayer() const;
 	void printHands() const;
-	void printHand(size_t i) const;
+	void printHand(int i) const;
 		
 	//resets for next round
 	void reset();
@@ -55,7 +55,7 @@ public:
 	void takeInsurance();
 	void setBet(int _bet);
 	void setBank(double _bank);
-	void takeBet(size_t h, int _bet);
+	void takeBet(int h, int _bet);
 	std::string collectWinnings(double _bet);
 	
 	void dealerCheat();

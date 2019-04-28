@@ -13,15 +13,15 @@ Hand::~Hand()
 {
 }
 
-size_t Hand::size() const { return cards.size(); }
+int Hand::size() const { return static_cast<int>(cards.size()); }
 int Hand::getBet() const { return bet; }
 
 void Hand::incReceived() { received += 1; }
 void Hand::addBet(int _bet) { bet += _bet; }
 
 void Hand::print() const {
-	size_t len = cards.size();
-	for (size_t i = 0; i < len; i++) {
+	int len = size();
+	for (int i = 0; i < len; i++) {
 		cards[i].print();
 		std::cout << "\t";
 	}
@@ -38,7 +38,7 @@ bool Hand::canDoubleDown() const {
 int Hand::getScore() const { return score; }
 
 bool Hand::softenHand() {
-	for (size_t i = 0; i < cards.size(); i++) {
+	for (int i = 0; i < cards.size(); i++) {
 		if (!cards[i].isHidden()) {
 			if (cards[i].getValue() == 11) {
 				return cards[i].setAceSoft();
@@ -65,7 +65,7 @@ bool Hand::updateScore(Card card) {
 }
 
 bool Hand::isSoft() const {
-	for (size_t i = 0; i < cards.size(); i++) {
+	for (int i = 0; i < cards.size(); i++) {
 		if (cards[i].getValue() == 11)
 			return true;
 	}
@@ -74,7 +74,7 @@ bool Hand::isSoft() const {
 
 int Hand::recalculateScore() {
 	score = 0;
-	for (size_t i = 0; i < cards.size(); i++) {
+	for (int i = 0; i < cards.size(); i++) {
 		if (!cards[i].isHidden()) {
 			if (cards[i].getIndex() == 1) {
 				if (score <= 10)
@@ -122,10 +122,10 @@ Hand Hand::split() {
 	return newHand;
 }
 
-Card& Hand::operator[](size_t i){
+Card& Hand::operator[](int i){
 	return cards[i];
 }
 
-const Card& Hand::operator[](size_t i) const {
+const Card& Hand::operator[](int i) const {
 	return cards[i];
 }

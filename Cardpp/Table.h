@@ -67,9 +67,9 @@ public:
 	Table();
 	Table(Shoe* shoe, int _active, int _control, int _strategy);
 	~Table();
-	size_t getNumPlaying() const;
+	int getNumPlaying() const;
 	void print() const;
-	size_t playRound();
+	int playRound();
 	void playerTurn(int p);
 	void computerTurn(int h, int p);
 	void userTurn(int h, int p);
@@ -80,7 +80,7 @@ public:
 	bool makeDecision(int h, int p, char decision);
 	bool validDecision(char decision, bool canDD, bool canSplit);
 	std::string decisionMenu(bool canDD, bool canSplit);
-	std::string handInfoString(size_t h, size_t p);
+	std::string handInfoString(int h, int p);
 	char basicStrategyDecision(int h, int p) const;
 	
 	double bettingRecommendation(int p) const;
@@ -92,8 +92,8 @@ private:
 	Player* dealer;
 	std::vector<Player*> players;
 	int round;
-	size_t numPlaying;
-	size_t busts;
+	int numPlaying;
+	int busts;
 	
 	//8 digit bitwise number where 1 means user controlled/active
 	void setPlayerControl(int _control);

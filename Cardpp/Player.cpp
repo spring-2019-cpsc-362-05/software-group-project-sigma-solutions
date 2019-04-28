@@ -48,10 +48,10 @@ void Player::takeInsurance(){
 	bank -= (bet * 0.5);
 }
 
-bool Player::canDoubleDown(size_t h) const {
+bool Player::canDoubleDown(int h) const {
 	return ((bank - bet >= 0.0) && hands[h].canDoubleDown());
 }
-bool Player::canSplit(size_t h) const {
+bool Player::canSplit(int h) const {
 	return (bank >= (double)bet && hands[h].canSplit());
 }
 
@@ -64,7 +64,7 @@ bool Player::isControlled() const { return controlled; }
 bool Player::isPlaying() const { return playing; }
 bool Player::isCounting() const { return counting; }
 bool Player::hasInsurance() const { return insurance; }
-size_t Player::getNumHands() const { return hands.size(); }
+int Player::getNumHands() const { return static_cast<int>(hands.size()); }
 int Player::getScore(int i) const { return hands[i].getScore(); }
 int Player::getPosition() const { return position; }
 double Player::getBank() const { return bank; }
@@ -79,9 +79,9 @@ std::string Player::collectWinnings(double winnings){
 	return out.str();
 }
 
-Hand& Player::hand(size_t i) { return hands[i]; }
+Hand& Player::hand(int i) { return hands[i]; }
 
-void Player::takeBet(size_t h, int _bet){
+void Player::takeBet(int h, int _bet){
 	if (hands.size() < (h + 1)) {
 		hands.push_back(Hand());
 	}
@@ -106,13 +106,13 @@ int Player::getShowing() const {
 }
 
 void Player::printHands() const {
-	size_t len = hands.size();
-	for (size_t i = 0; i < len; i++) {
+	int len = getNumHands();
+	for (int i = 0; i < len; i++) {
 		printHand(i);
 	}	
 }
 
-void Player::printHand(size_t i) const {
+void Player::printHand(int i) const {
 	std::cout << "\tHand" << ((hands.size() > 1) ?
 		(" " + std::to_string(i + 1)) : "") << ":\t";
 	hands[i].print();
@@ -140,7 +140,7 @@ Card Player::showHoleCard() {
 }
 
 void Player::reset() {
-	for (size_t i = 0; i < hands.size(); i++) {
+	for (int i = 0; i < hands.size(); i++) {
 		hands[i].reset();
 	}
 	hands.clear();
@@ -149,7 +149,7 @@ void Player::reset() {
 }
 
 
-bool Player::split(size_t h, int _bet) {
+bool Player::split(int h, int _bet) {
 	hands.push_back(hands[h].split());
 	hands.back().addBet(_bet);
 	recalculateScores();
@@ -157,7 +157,7 @@ bool Player::split(size_t h, int _bet) {
 }
 
 void Player::recalculateScores(){
-	for (size_t i = 0; i < hands.size(); i++)
+	for (int i = 0; i < hands.size(); i++)
 		hands[i].recalculateScore();
 }
 

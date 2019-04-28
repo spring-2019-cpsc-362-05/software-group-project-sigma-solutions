@@ -10,7 +10,7 @@
 #include <random>
 
 int main() {
-	int numDecks = 8;
+	int numDecks = 4;
 
 	std::cout.precision(2);
 
@@ -20,13 +20,13 @@ int main() {
 
 	Card temp;
 	int round = 1;
-	size_t remainingCards = shoe->getSize();
+	int remainingCards = shoe->getSize();
 	//active, control, strategy
-	Table table(shoe, 255, 15, 255);
-	size_t numPlaying = table.getNumPlaying();
+	Table table(shoe, 1, 1, 255);
+	int numPlaying = table.getNumPlaying();
 
 
-	size_t cutCard = uni(rng);
+	int cutCard = uni(rng);
 	std::cout << "Cut Card: " << cutCard << std::endl;
 
 	while (((remainingCards - (numPlaying + 1) * 3) > cutCard)

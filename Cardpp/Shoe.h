@@ -21,7 +21,7 @@ public:
 	//Fill a shoe with a number of the same card
 	Shoe(Card card, int num);
 	~Shoe();
-	size_t getSize() const;
+	int getSize() const;
 	void print() const;
 	void printCounts() const;
 	int getRunningCount() const;

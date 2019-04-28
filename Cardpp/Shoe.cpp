@@ -31,7 +31,7 @@ void Shoe::addCard(int index, int suit) {
 	cards.push_back(Card(index, suit));
 }
 
-size_t Shoe::getSize() const { return cards.size(); }
+int Shoe::getSize() const { return static_cast<int>(cards.size()); }
 int Shoe::getRunningCount() const { return runningCount; }
 int Shoe::getTrueCount() const { return trueCount; }
 
@@ -57,8 +57,8 @@ void Shoe::shuffle(int times) {
 }
 
 void Shoe::print() const {
-	size_t len = cards.size();
-	for (size_t i = 0; i < len; i++) {
+	int len = getSize();
+	for (int i = 0; i < len; i++) {
 		cards[i].print();
 		std::cout << std::endl;
 	}

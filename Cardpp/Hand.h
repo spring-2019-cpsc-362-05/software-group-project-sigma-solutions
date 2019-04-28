@@ -15,7 +15,7 @@ public:
 	int getScore() const;
 	bool hasBlackjack() const;
 	bool isSoft() const;
-	size_t size() const;
+	int size() const;
 	int getBet() const;
 
 	bool softenHand();
@@ -27,8 +27,8 @@ public:
 	void dealHidden(Card card);
 	void incReceived();
 
-	Card& operator[](size_t i);
-	const Card& operator[](size_t i) const;
+	Card& operator[](int i);
+	const Card& operator[](int i) const;
 	void addBet(int _bet);
 
 private:
