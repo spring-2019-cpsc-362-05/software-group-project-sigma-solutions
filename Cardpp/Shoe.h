@@ -18,6 +18,8 @@ class Shoe
 public:
 	Shoe();
 	Shoe(int decks);
+	//Fill a shoe with a number of the same card
+	Shoe(Card card, int num);
 	~Shoe();
 	size_t getSize() const;
 	void print() const;

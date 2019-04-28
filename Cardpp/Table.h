@@ -42,6 +42,24 @@ static const char BASIC_STRAT_S[9][13] = {
 };
 static const int SOFT_MOD = 13;
 
+static const char BASIC_STRAT_SPLIT[13][13] = {
+	{ 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P' },
+	{ 'H', 'P', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H', 'H', 'H' },
+	{ 'H', 'P', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H', 'H', 'H' },
+	{ 'H', 'H', 'H', 'H', 'P', 'P', 'H', 'H', 'H', 'H', 'H', 'H', 'H' },
+	{ 'H', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'H', 'H', 'H', 'H' },
+	{ 'H', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H', 'H', 'H', 'H' },
+	{ 'H', 'P', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H', 'H', 'H' },
+	{ 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P' },
+	{ 'S', 'P', 'P', 'P', 'P', 'P', 'S', 'P', 'P', 'S', 'S', 'S', 'S' },
+	{ 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S' },	
+	{ 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S' },
+	{ 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S' },
+	{ 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S' }
+};
+static const int SPLIT_MOD = 1;
+
+
 class Table
 {
 public:
@@ -52,11 +70,16 @@ public:
 	void print() const;
 	size_t playRound();
 	void playerTurn(int p);
-	void computerTurn(int p);
-	void userTurn(int p);
+	void computerTurn(int h, int p);
+	void userTurn(int h, int p);
 	void offerInsurance();
 	void dealerTurn();
 	void placeBets();
+
+	bool makeDecision(int h, int p, char decision);
+	bool validDecision(char decision, bool canDD, bool canSplit);
+	std::string decisionMenu(bool canDD, bool canSplit);
+	std::string handInfoString(size_t h, size_t p);
 	
 private:
 	Shoe* shoe;
@@ -72,7 +95,9 @@ private:
 	void setStrategy(int _strategy);
 	void initDeal();
 	//returns false if player busts
-	bool hit(int player);
+	bool hit(int h, int p);
+	bool doubleDown(int h, int p);
+	bool split(int h, int p);
 	void printWinners();
 };
 

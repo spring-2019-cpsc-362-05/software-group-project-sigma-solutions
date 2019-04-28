@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <sstream>
 
 #include "Card.h"
+#include "Hand.h"
 
 #define DEFAULT_BET 100
 #define DEFAULT_BANK 1000
@@ -22,23 +24,29 @@ public:
 	bool isCounting() const;
 	bool hasInsurance() const;
 	bool dealerHits() const;
-	bool canDoubleDown() const;
+	bool canDoubleDown(size_t h) const;
+	bool canSplit(size_t h) const;
 	int getPosition() const;
-	size_t getHandSize() const;
-	int getBank() const;
+	size_t getNumHands() const;
+	double getBank() const;
 	int getBet() const;
-	int getScore() const;
-	bool isSoft() const;
+	int getScore(int i) const;
+	void recalculateScores();
+	bool isSoft(int i) const;
 	int getShowing() const;
-	bool hasBlackjack() const;
-	void takeBet(int bet);
+	bool hasBlackjack(int i) const;
+
+	Hand& hand(size_t i);
+	bool split(size_t h, int _bet);
 
 	void print() const;
-	void printHand() const;
+	void printPlayer() const;
+	void printHands() const;
+	void printHand(size_t i) const;
 		
 	//resets for next round
 	void reset();
-	void dealCard(Card card);
+	void dealCard(int i, Card card);
 	Card showHoleCard();
 	void setUserControlled();
 	void activate();
@@ -48,6 +56,8 @@ public:
 	void modBank(double mod);
 	void setBet(int _bet);
 	void setBank(double _bank);
+	void takeBet(size_t h, int _bet);
+	std::string collectWinnings(double _bet);
 	
 	void dealerCheat();
 private:
@@ -62,11 +72,10 @@ private:
 	bool insurance;
 	//Position on the table
 	int position;
-	std::vector<Card> hand;
+	std::vector<Hand> hands;
 	double bank;
 	int bet;
-	int score;
 
-	bool updateScore(Card card);
+	bool updateScore(int i, Card card);
 };
 

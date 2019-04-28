@@ -9,7 +9,7 @@ Player::Player()
 	position = 0;
 	bank = DEFAULT_BANK;
 	bet = DEFAULT_BET;
-	score = 0;
+	std::vector<Hand> hands;
 }
 
 Player::Player(std::string playerType, int _position) {
@@ -35,21 +35,24 @@ Player::Player(std::string playerType, int _position) {
 	position = _position;
 	bank = DEFAULT_BANK;
 	bet = DEFAULT_BET;
-	score = 0;
+	std::vector<Hand> hands;
 }
 
 void Player::setUserControlled() { controlled = true; }
 void Player::activate() {playing = true;}
 void Player::deactivate() { playing = false; }
 void Player::setStrategy(bool _counting) { counting = _counting; }
+
 void Player::takeInsurance(){
 	insurance = true;
 	modBank(-0.5);
 }
 
-
-bool Player::canDoubleDown() const {
-	return (bank >= bet && hand.size() == 2);
+bool Player::canDoubleDown(size_t h) const {
+	return ((bank - bet >= 0.0) && hands[h].canDoubleDown());
+}
+bool Player::canSplit(size_t h) const {
+	return (bank >= (double)bet && hands[h].canSplit());
 }
 
 Player::~Player()
@@ -61,108 +64,121 @@ bool Player::isControlled() const { return controlled; }
 bool Player::isPlaying() const { return playing; }
 bool Player::isCounting() const { return counting; }
 bool Player::hasInsurance() const { return insurance; }
-size_t Player::getHandSize() const { return hand.size(); }
-int Player::getScore() const { return score; }
+size_t Player::getNumHands() const { return hands.size(); }
+int Player::getScore(int i) const { return hands[i].getScore(); }
 int Player::getPosition() const { return position; }
-int Player::getBank() const { return bank; }
+double Player::getBank() const { return bank; }
 int Player::getBet() const { return bet; }
-void Player::takeBet(int bet) { bank -= bet; }
-
-bool Player::isSoft() const {
-	for (size_t i = 0; i < hand.size(); i++) {
-		if (hand[i].getValue() == 11)
-			return true;
+bool Player::isSoft(int i) const { return hands[i].isSoft(); }
+std::string Player::collectWinnings(double winnings){
+	std::ostringstream out;
+	if (winnings > 0) {
+		bank += winnings;
+		out << " and receives $" << std::setprecision(2) << std::fixed << winnings;
 	}
-	return false;
+	return out.str();
+}
+
+Hand& Player::hand(size_t i) { return hands[i]; }
+
+void Player::takeBet(size_t h, int _bet){
+	if (hands.size() < (h + 1)) {
+		hands.push_back(Hand());
+	}
+	bank -= bet;
+	hands[h].addBet(bet);
+	std::cout << "Player " << position << " bets $" << std::fixed << bet
+		<< ". Bank is now $" << std::fixed << bank << std::endl;
 }
 
 bool Player::dealerHits() const {
-	if (score < 22) {
-		if (isSoft())
-			return (score <= 17);
+	if (hands[0].getScore() < 22) {
+		if (hands[0].isSoft())
+			return (hands[0].getScore() <= 17);
 		else
-			return (score < 17);
+			return (hands[0].getScore() < 17);
 	}
 	return false;
 }
 
 int Player::getShowing() const {
-	return hand[1].getIndex();
+	return (hands[0][0].getIndex());
 }
 
-void Player::printHand() const {
-	size_t len = hand.size();
+void Player::printHands() const {
+	size_t len = hands.size();
 	for (size_t i = 0; i < len; i++) {
-		hand[i].print();
-		std::cout << "\t";
-	}
-	std::cout << "Score: " << score << std::endl;
+		printHand(i);
+	}	
+}
+
+void Player::printHand(size_t i) const {
+	std::cout << "\tHand" << ((hands.size() > 1) ?
+		(" " + std::to_string(i + 1)) : "") << ":\t";
+	hands[i].print();
 }
 
 void Player::print() const {
-	if (!dealer) {
-		std::cout << ((controlled)? "H-" : "C-");
-		std::cout << "Player " << position << " ($" << std::fixed << bank
-			<< "): \t";
-	}
-	else
-		std::cout << "\t       Dealer:\t";
-	printHand();
+	printPlayer();
+	printHands();
 }
 
+void Player::printPlayer() const {
+	if (!dealer) {
+		std::cout << ((controlled) ? "H-" : "C-");
+		std::cout << "Player " << position << " ($" << std::fixed << bank
+			<< "): \n";
+	}
+	else
+		std::cout << "Dealer:\n";
+}
 
 Card Player::showHoleCard() {
-	hand[0].showCard();
-	updateScore(hand[0]);
-	return hand[0];
+	hands[0][0].showCard();
+	updateScore(0, hands[0][0]);
+	return hands[0][0];
 }
 
 void Player::reset() {
-	hand.clear();
-	score = 0;
+	for (size_t i = 0; i < hands.size(); i++) {
+		hands[i].reset();
+	}
+	hands.clear();
 	bet = DEFAULT_BET;
 	insurance = false;
 }
 
-void Player::dealCard(Card card) {
-	if (!card.isHidden())
-		updateScore(card);
-	hand.push_back(card);
-}
 
-bool Player::updateScore(Card card) {
-	if (card.getIndex() == 1) {
-		if (score <= 10)
-			score += 11;
-		else
-			score += 1;
-	}
-	else
-		score += card.getValue();
-
-	if (score > 21) {
-		size_t i = 0;
-		bool softened = false;
-		while(!softened && i < hand.size()) {
-			softened = hand[i++].setAceSoft();
-			if (softened) {
-				score -= 10;
-				return true;
-			}
-		}
-		return false;
-	}
+bool Player::split(size_t h, int _bet) {
+	hands.push_back(hands[h].split());
+	hands.back().addBet(_bet);
+	recalculateScores();
 	return true;
 }
 
-bool Player::hasBlackjack() const {
-	if (hand.size() == 2) {
-		if ((hand[0].getValue() + hand[1].getValue()) == 21)
-			return true;
-	}
-	return false;
+void Player::recalculateScores(){
+	for (size_t i = 0; i < hands.size(); i++)
+		hands[i].recalculateScore();
 }
 
+void Player::dealCard(int i, Card card) {
+	if (hands.size() < (i + 1)) {
+		hands.push_back(Hand());
+	}
+
+	if (!card.isHidden())
+		hands[i].dealCard(card);
+	else
+		hands[i].dealHidden(card);
+}
+
+bool Player::updateScore(int i, Card card) {
+	return hands[i].updateScore(card);
+}
+
+bool Player::hasBlackjack(int i) const {
+	return hands[i].hasBlackjack();
+}
 
 void Player::modBank(double mod) {
 	bank += (mod * bet);
@@ -176,8 +192,8 @@ void Player::setBet(int _bet) { bet = _bet; }
 void Player::setBank(double _bank) { bank = _bank; }
 
 void Player::dealerCheat() {
-	hand[0] = Card(10, 0);
-	hand[0].hideCard();
-	hand[1] = Card(1, 0);
-	score = 11;
+	hands[0][0] = Card(10, 0);
+	hands[0][0].hideCard();
+	hands[0][1] = Card(1, 0);
+	hands[0].recalculateScore();
 }

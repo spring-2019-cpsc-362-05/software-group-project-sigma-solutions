@@ -20,6 +20,13 @@ Shoe::Shoe(int decks) {
 	trueCount = 0;
 }
 
+Shoe::Shoe(Card card, int num) {
+	for (int i = 0; i < num; i++)
+		cards.push_back(card);
+	runningCount = 0;
+	trueCount = 0;
+}
+
 void Shoe::addCard(int index, int suit) {
 	cards.push_back(Card(index, suit));
 }
