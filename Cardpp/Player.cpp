@@ -45,7 +45,7 @@ void Player::setStrategy(bool _counting) { counting = _counting; }
 
 void Player::takeInsurance(){
 	insurance = true;
-	modBank(-0.5);
+	bank -= (bet * 0.5);
 }
 
 bool Player::canDoubleDown(size_t h) const {
@@ -178,13 +178,6 @@ bool Player::updateScore(int i, Card card) {
 
 bool Player::hasBlackjack(int i) const {
 	return hands[i].hasBlackjack();
-}
-
-void Player::modBank(double mod) {
-	bank += (mod * bet);
-	std::string str = ((mod >= 0) ? " receives $" : " pays $");
-	std::cout << "Player " << position << str << std::fixed << abs((mod*bet))
-		<< ". Bank is now $" << std::fixed << bank << std::endl;
 }
 
 void Player::setBet(int _bet) { bet = _bet; }

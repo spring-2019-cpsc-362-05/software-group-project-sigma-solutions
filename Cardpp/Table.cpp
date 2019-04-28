@@ -62,19 +62,35 @@ void Table::setStrategy(int _strategy) {
 
 void Table::placeBets() {
 	double bank = 0;
-	int bet = 0;
+	int bet = DEFAULT_BET;
 	for (int i = 0; i < MAX_PLAYERS; i++) {
+		shoe->printCounts();
 		if (players[i]->isPlaying()) {
 			bank = players[i]->getBank();
-			bet = players[i]->getBet();
-			if (bank >= bet)
-				players[i]->takeBet(0, bet);
-			else {
+			if (bank < DEFAULT_BET){
 				std::cout << "Player " << players[i]->getPosition() << " only has $"
 					<< std::fixed << bank << " and cannot bet $" << bet
 					<< "\nThey have left the game.\n";
 				players[i]->deactivate();
 				numPlaying--;
+			}
+			else {
+				if (players[i]->isControlled()) {
+					std::cout << "Player " << players[i]->getPosition()
+						<< " choose bet amount. ==> ";
+					do {
+						std::cin >> bet;
+						if (bank < bet) {
+							std::cout << "You cannot afford that bet. Try again.  ==> ";
+						}
+						if (bet < DEFAULT_BET) {
+							std::cout << "That is below minimum bet. Try again.  ==> ";
+						}
+					} while ((bank < bet) && (bet < DEFAULT_BET));
+				}
+
+				players[i]->setBet(bet);
+				players[i]->takeBet(0, bet);
 			}
 		}
 	}
@@ -132,45 +148,51 @@ size_t Table::playRound() {
 void Table::offerInsurance() {
 	char choice = 0;
 	bool valid = false;
-	int runningCount = shoe->getRunningCount();
-	int trueCount = shoe->getTrueCount();
+	int bet;
+	double bank;
 
 	for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
-			//Computer players take insurance half of the time.
-			if (!players[i]->isControlled()) {
-				if ((uni(rng) % 2) == 0) {
-					std::cout << "Player " << players[i]->getPosition()
-						<< " takes insurance.\n";
-					players[i]->takeInsurance();
-				}
-				else {
-					std::cout << "Player " << players[i]->getPosition()
-						<< " declines insurance.\n";
-				}
-			}
-			else {
-				std::cout << "Running Count: " << ((runningCount > 0) ? "+" : "") << runningCount
-					<< "\tTrue Count: " << ((trueCount > 0) ? "+" : "") << trueCount << std::endl;
-				std::cout << "Player " << players[i]->getPosition()
-					<< " would you like insurance? Y/N ==> ";
-				while (!valid) {
-					std::cin >> choice;
-					if (toupper(choice) == 'Y') {
-						valid = true;
-						players[i]->takeInsurance();
+			bet = players[i]->getBet();
+			bank = players[i]->getBank();
+			if (bank >= (bet / 2)) {
+				if (!players[i]->isControlled()) {
+					if ((uni(rng) % 2) == 0) {
 						std::cout << "Player " << players[i]->getPosition()
 							<< " takes insurance.\n";
+						players[i]->takeInsurance();
 					}
-					else if (toupper(choice) == 'N') {
-						valid = true;
+					else {
 						std::cout << "Player " << players[i]->getPosition()
 							<< " declines insurance.\n";
 					}
-					else {
-						std::cout << "Please enter valid choice. Y/N ==> ";
+				}
+				else {
+					shoe->printCounts();
+					std::cout << "Player " << players[i]->getPosition()
+						<< " would you like insurance? Y/N ==> ";
+					while (!valid) {
+						std::cin >> choice;
+						if (toupper(choice) == 'Y') {
+							valid = true;
+							players[i]->takeInsurance();
+							std::cout << "Player " << players[i]->getPosition()
+								<< " takes insurance.\n";
+						}
+						else if (toupper(choice) == 'N') {
+							valid = true;
+							std::cout << "Player " << players[i]->getPosition()
+								<< " declines insurance.\n";
+						}
+						else {
+							std::cout << "Please enter valid choice. Y/N ==> ";
+						}
 					}
 				}
+			}
+			else {
+				std::cout << "Player " << players[i]->getPosition()
+					<< " can't afford insurance.\n";
 			}
 		}
 		valid = false;
@@ -248,8 +270,6 @@ bool Table::makeDecision(int h, int p, char decision) {
 }
 
 void Table::userTurn(int h, int p) {
-	int runningCount = 0,
-		trueCount = 0;
 	char decision;
 	bool turn = true,
 		valid = false,
@@ -266,11 +286,7 @@ void Table::userTurn(int h, int p) {
 		canSplit = players[p]->canSplit(h);
 		valid = false;
 		players[p]->printHand(h);
-		runningCount = shoe->getRunningCount();
-		trueCount = shoe->getTrueCount();
-		std::cout << "Running Count: " << ((runningCount > 0) ? "+" : "") 
-			<< runningCount	<< "\tTrue Count: " << ((trueCount > 0) ? "+" : "") 
-			<< trueCount << std::endl;
+		shoe->printCounts();
 		std::cout << "Player " << players[p]->getPosition() << " make a decision"
 			<< handInfoString(h, p) << decisionMenu(canDD, canSplit);
 		while (!valid) {
@@ -299,6 +315,7 @@ void Table::dealerTurn() {
 		while (dealer->dealerHits()) {
 			std::cout << "Dealer hits.\n";
 			dealer->dealCard(0, shoe->deal());
+			dealer->printHand(0);
 			if (dealer->hand(0).getScore() > 21)
 				std::cout << "Dealer busted with " << dealer->hand(0).getScore() << "!\n";
 		}

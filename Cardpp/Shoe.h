@@ -23,6 +23,7 @@ public:
 	~Shoe();
 	size_t getSize() const;
 	void print() const;
+	void printCounts() const;
 	int getRunningCount() const;
 	int getTrueCount() const;
 

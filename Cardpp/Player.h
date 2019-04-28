@@ -53,7 +53,6 @@ public:
 	void deactivate();
 	void setStrategy(bool _counting);
 	void takeInsurance();
-	void modBank(double mod);
 	void setBet(int _bet);
 	void setBank(double _bank);
 	void takeBet(size_t h, int _bet);

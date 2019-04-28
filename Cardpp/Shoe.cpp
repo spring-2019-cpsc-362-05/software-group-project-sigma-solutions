@@ -64,6 +64,11 @@ void Shoe::print() const {
 	}
 }
 
+void Shoe::printCounts() const {
+	std::cout << "Running Count: " << ((runningCount > 0) ? "+" : "") << runningCount
+		<< "\tTrue Count: " << ((trueCount > 0) ? "+" : "") << trueCount << std::endl;
+}
+
 void Shoe::updateCounts(Card c) {
 	runningCount += c.getCountValue();
 	trueCount = runningCount / ((int)(cards.size() / 52));

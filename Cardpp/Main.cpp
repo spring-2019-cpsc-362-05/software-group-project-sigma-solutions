@@ -10,19 +10,19 @@
 #include <random>
 
 int main() {
-	int numDecks = 10;
+	int numDecks = 8;
 
 	std::cout.precision(2);
 
-	//Shoe* shoe = new Shoe(numDecks);
-	Shoe* shoe = new Shoe(Card(1, 0), 1000);
+	Shoe* shoe = new Shoe(numDecks);
+	//Shoe* shoe = new Shoe(Card(1, 0), 1000);
 	shoe->shuffle(3);
 
 	Card temp;
 	int round = 1;
 	size_t remainingCards = shoe->getSize();
 	//active, control, strategy
-	Table table(shoe, 255, 0, 255);
+	Table table(shoe, 255, 15, 255);
 	size_t numPlaying = table.getNumPlaying();
 
 
