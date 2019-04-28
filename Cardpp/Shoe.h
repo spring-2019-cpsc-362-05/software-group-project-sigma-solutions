@@ -32,6 +32,7 @@ public:
 	Card deal();
 	Card dealHidden();
 	void updateCounts(Card c);
+
 private:
 	std::vector<Card> cards;
 	int runningCount;

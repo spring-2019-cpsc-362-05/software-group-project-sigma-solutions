@@ -65,6 +65,8 @@ void Table::placeBets() {
 	int bet = DEFAULT_BET;
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		shoe->printCounts();
+		std::cout << "Recomended bet: $" << std::fixed 
+			<< bettingRecommendation(i) << std::endl;
 		if (players[i]->isPlaying()) {
 			bank = players[i]->getBank();
 			if (bank < DEFAULT_BET){
@@ -169,6 +171,8 @@ void Table::offerInsurance() {
 				}
 				else {
 					shoe->printCounts();
+					std::cout << "You should" << (insuranceRecommendation(i) ?
+						" " : "n't ") << "take insurance.\n";
 					std::cout << "Player " << players[i]->getPosition()
 						<< " would you like insurance? Y/N ==> ";
 					while (!valid) {
@@ -227,21 +231,30 @@ void Table::computerTurn(int h, int p) {
 	}
 
 	while (turn) {
-		if (players[p]->canSplit(h)) {
-			decision =
-				BASIC_STRAT_SPLIT[players[p]->hand(h)[0].getIndex() - SPLIT_MOD][dealerShowing - SPLIT_MOD];
-		}
-		else {
-			decision = (players[p]->hand(h).isSoft() ?
-				BASIC_STRAT_S[players[p]->hand(h).getScore() - SOFT_MOD][dealerShowing - 1] :
-				BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1]);
-		}
-
-		if (decision == 'D' && !players[p]->canDoubleDown(h))
-			decision = 'H';
-
+		decision = basicStrategyDecision(h, p);
 		turn = makeDecision(h, p, decision);
 	}
+}
+
+char Table::basicStrategyDecision(int h, int p) const {
+	char decision;
+	int dealerShowing = dealer->getShowing();
+	if (players[p]->canSplit(h)) {
+		decision = BASIC_STRAT_SPLIT[players[p]->hand(h)[0].getIndex() - SPLIT_MOD][dealerShowing - SPLIT_MOD];
+	}
+	else if (players[p]->hand(h).size() == 1) {
+		decision = BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1]);
+	}
+	else {
+		decision = (players[p]->hand(h).isSoft() ?
+			BASIC_STRAT_S[players[p]->hand(h).getScore() - SOFT_MOD][dealerShowing - 1] :
+			BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1]);
+	}
+
+	if (decision == 'D' && !players[p]->canDoubleDown(h))
+		decision = 'H';
+
+	return decision;
 }
 
 bool Table::makeDecision(int h, int p, char decision) {
@@ -287,6 +300,7 @@ void Table::userTurn(int h, int p) {
 		valid = false;
 		players[p]->printHand(h);
 		shoe->printCounts();
+		std::cout << "Recomended decision " << decisionRecommendation(h, p) << std::endl;
 		std::cout << "Player " << players[p]->getPosition() << " make a decision"
 			<< handInfoString(h, p) << decisionMenu(canDD, canSplit);
 		while (!valid) {
@@ -326,7 +340,6 @@ void Table::dealerTurn() {
 	else
 		std::cout << "Everyone busted. Dealer wins!\n";
 }
-
 
 bool Table::hit(int h, int p) {
 	players[p]->dealCard(h, shoe->deal());
@@ -452,7 +465,6 @@ std::string Table::decisionMenu(bool canDD, bool canSplit) {
 	return temp;
 }
 
-
 bool Table::validDecision(char decision, bool canDD, bool canSplit) {
 	if (decision == 'S')
 		return true;
@@ -471,4 +483,107 @@ std::string Table::handInfoString(size_t h, size_t p) {
 		temp += (" for Hand " + std::to_string(h + 1));
 	temp += ".\t";
 	return temp;
+}
+
+double Table::bettingRecommendation(int p) const {
+	int trueCount = shoe->getTrueCount();
+	double bank = players[p]->getBank();
+	if (trueCount <= 1)
+		return DEFAULT_BET;
+	if(trueCount == 2)
+		return (std::max(bank, DEFAULT_BET*2.0));
+	if (trueCount == 3)
+		return (std::max(bank, DEFAULT_BET*4.0));
+	if (trueCount == 4)
+		return (std::max(bank, DEFAULT_BET*8.0));
+
+	return (std::max(bank, DEFAULT_BET*12.0));
+}
+
+bool Table::insuranceRecommendation(int p) const {
+	return (shoe->getTrueCount() >= 3);
+}
+
+char Table::decisionRecommendation(int h, int p) const {
+	int score = players[p]->getScore(h);
+	int dealerValue = dealer->hand(0)[1].getValue();
+	int trueCount = shoe->getTrueCount();
+
+	char decision = basicStrategyDecision(h, p);
+
+	if (score == 16) {
+		if (dealerValue == 9) {
+			decision = ((trueCount >= 5) ? 'S' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 10) {
+			decision = ((trueCount >= 0) ? 'S' : basicStrategyDecision(h, p));
+		}
+	}
+	else if (score == 15) {
+		if (dealerValue == 10) {
+			decision = ((trueCount >= 4) ? 'S' : basicStrategyDecision(h, p));
+		}
+	}
+	else if (score == 13) {
+		if (dealerValue == 2) {
+			decision = ((trueCount >= -1) ? 'S' : 'H');
+		}
+		else if (dealerValue == 3) {
+			decision = ((trueCount >= -2) ? 'S' : 'H');
+		}
+	}
+	else if (score == 12) {
+		if (dealerValue == 2) {
+			decision = ((trueCount >= 4) ? 'S' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 3) {
+			decision = ((trueCount >= 2) ? 'S' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 4) {
+			decision = ((trueCount >= 0) ? 'S' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 5) {
+			decision = ((trueCount >= -1) ? 'S' : 'H');
+		}
+		else if (dealerValue == 6) {
+			decision = ((trueCount >= -1) ? 'S' : 'H');
+		}
+	}
+	else if (score == 11) {
+		if (dealerValue == 11) {
+			decision = ((trueCount >= 1) ? 'D' : basicStrategyDecision(h, p));
+		}
+	}
+	else if (score == 10) {
+		if (dealerValue == 10) {
+			decision = ((trueCount >= 4) ? 'D' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 11) {
+			decision = ((trueCount >= 4) ? 'D' : basicStrategyDecision(h, p));
+		}
+	}
+	else if (score == 9) {
+		if (dealerValue == 2) {
+			decision = ((trueCount >= 1) ? 'D' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 7) {
+			decision = ((trueCount >= 4) ? 'D' : basicStrategyDecision(h, p));
+		}
+	}
+	else if (score == 20) {
+		if (dealerValue == 5) {
+			decision = ((trueCount >= 5) ? 'P' : basicStrategyDecision(h, p));
+		}
+		else if (dealerValue == 6) {
+			decision = ((trueCount >= 5) ? 'P' : basicStrategyDecision(h, p));
+		}
+	}
+
+	if (decision == 'D' && !players[p]->canDoubleDown(h))
+		decision = 'H';
+
+	if (decision == 'P' && !players[p]->canSplit(h))
+		decision = basicStrategyDecision(h, p);
+
+	return decision;
 }

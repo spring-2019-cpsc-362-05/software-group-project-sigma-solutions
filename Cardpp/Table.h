@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 #include "Player.h"
 #include "Shoe.h"
@@ -80,7 +81,12 @@ public:
 	bool validDecision(char decision, bool canDD, bool canSplit);
 	std::string decisionMenu(bool canDD, bool canSplit);
 	std::string handInfoString(size_t h, size_t p);
+	char basicStrategyDecision(int h, int p) const;
 	
+	double bettingRecommendation(int p) const;
+	bool insuranceRecommendation(int p) const;
+	char decisionRecommendation(int h, int p) const;
+
 private:
 	Shoe* shoe;
 	Player* dealer;
@@ -99,5 +105,7 @@ private:
 	bool doubleDown(int h, int p);
 	bool split(int h, int p);
 	void printWinners();
+
+
 };
 

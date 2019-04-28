@@ -102,7 +102,7 @@ bool Player::dealerHits() const {
 }
 
 int Player::getShowing() const {
-	return (hands[0][0].getIndex());
+	return (hands[0][1].getIndex());
 }
 
 void Player::printHands() const {

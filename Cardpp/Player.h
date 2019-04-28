@@ -8,7 +8,7 @@
 #include "Card.h"
 #include "Hand.h"
 
-#define DEFAULT_BET 100
+#define DEFAULT_BET 5
 #define DEFAULT_BANK 1000
 
 class Player
