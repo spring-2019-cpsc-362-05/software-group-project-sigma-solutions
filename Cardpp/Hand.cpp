@@ -96,7 +96,8 @@ int Hand::recalculateScore() {
 }
 
 bool Hand::hasBlackjack() const {
-	return ((cards.size() == 2) && (score == 21));
+	return ((cards.size() == 2) 
+		&& ((cards[0].getValue() + cards[1].getValue()) == 21));
 }
 
 void Hand::dealCard(Card card) {

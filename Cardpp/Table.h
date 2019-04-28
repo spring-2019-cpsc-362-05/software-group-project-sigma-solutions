@@ -73,7 +73,7 @@ public:
 	void playerTurn(int p);
 	void computerTurn(int h, int p);
 	void userTurn(int h, int p);
-	void offerInsurance();
+	bool offerInsurance();
 	void dealerTurn();
 	void placeBets();
 
@@ -105,6 +105,7 @@ private:
 	bool doubleDown(int h, int p);
 	bool split(int h, int p);
 	void printWinners();
+	void payInsurance();
 
 
 };

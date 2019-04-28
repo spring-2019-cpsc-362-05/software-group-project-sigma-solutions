@@ -115,29 +115,40 @@ int Table::playRound() {
 	int remainingCards = shoe->getSize();
 	Card temp;
 
-	std::cout << std::string(57, '-') << std::endl << "Round " << round 
-		<< ": " << remainingCards << " cards remaining.\n" 
+	std::cout << std::string(57, '-') << std::endl << "Round " << round
+		<< ": " << remainingCards << " cards remaining.\n"
 		<< std::string(57, '-') << std::endl;
 
 	initDeal();
-	//dealer->dealerCheat();
+	dealer->dealerCheat();
 	print();
-	
+
 	//Check up card
 	int dealerShowing = dealer->getShowing();
+	bool dealerBJ = false;
 	//Insurance only offered with Ace up card.
 	if (dealerShowing == 1) {
-		offerInsurance();
+		dealerBJ = offerInsurance();
 	}
 
-	busts = 0;
-	for (int i = 0; i < MAX_PLAYERS; i++) {
-		if (players[i]->isPlaying())
-			playerTurn(i);
-	}
-	dealerTurn();
+	if (!dealerBJ) {
+		busts = 0;
+		for (int i = 0; i < MAX_PLAYERS; i++) {
+			if (players[i]->isPlaying())
+				playerTurn(i);
+		}
+		dealerTurn();
 
-	printWinners();
+		printWinners();
+	}
+	else {
+		std::cout << "\nShowing Dealer's Hole Card:\n";
+		Card temp = dealer->showHoleCard();
+		shoe->updateCounts(temp);
+		dealer->print();
+		std::cout << "Dealer has Blackjack!\n";
+		payInsurance();
+	}
 
 	for (int i = 0; i < MAX_PLAYERS; i++) {
 		players[i]->reset();
@@ -147,7 +158,7 @@ int Table::playRound() {
 	return shoe->getSize();
 }
 
-void Table::offerInsurance() {
+bool Table::offerInsurance() {
 	char choice = 0;
 	bool valid = false;
 	int bet;
@@ -201,6 +212,7 @@ void Table::offerInsurance() {
 		}
 		valid = false;
 	}
+	return dealer->hand(0).hasBlackjack();
 }
 
 void Table::playerTurn(int p) {
@@ -381,19 +393,9 @@ void Table::printWinners() {
 				bet = players[p]->hand(h).getBet();
 				winnings = 0;
 				playerBJ = players[p]->hand(h).hasBlackjack();
-				playerIns = players[p]->hasInsurance();
+				//Dealer has uninsureable Blackjack
 				if (dealerBJ) {
-					if (playerBJ && playerIns) {
-						std::cout << "Player " << players[p]->getPosition()
-							<< " took even money";
-						winnings = bet * 2;
-					}
-					else if (playerIns) {
-						std::cout << "Player " << players[p]->getPosition()
-							<< " has insurance";
-						winnings = bet;
-					}
-					else if (playerBJ) {
+					if (playerBJ) {
 						std::cout << "Player " << players[p]->getPosition()
 							<< " has Blackjack too and pushes"; //doesn't lose bet
 						winnings = bet;
@@ -455,6 +457,50 @@ void Table::printWinners() {
 	std::cout << std::endl;
 }
 
+//Insured Blackjack
+void Table::payInsurance() {
+	std::cout << "\nResults:\n";
+	bool playerBJ = false,
+		playerIns = false;
+	int bet;
+	double winnings;
+
+	for (int p = 0; p < MAX_PLAYERS; p++) {
+		if (players[p]->isPlaying()) {
+			for (int h = 0; h < players[p]->getNumHands(); h++) {
+				bet = players[p]->hand(h).getBet();
+				winnings = 0;
+				playerBJ = players[p]->hand(h).hasBlackjack();
+				playerIns = players[p]->hasInsurance();
+				//Insured Blackjack
+				if (playerBJ && playerIns) {
+					std::cout << "Player " << players[p]->getPosition()
+						<< " took even money.\n";
+					winnings = bet * 2;
+				}
+				else if (playerIns) {
+					std::cout << "Player " << players[p]->getPosition()
+						<< " has insurance.\n";
+					winnings = bet;
+				}
+				else if (playerBJ) {
+					std::cout << "Player " << players[p]->getPosition()
+						<< " has Blackjack too and pushes.\n";
+					winnings = bet;
+				}
+				else {
+					std::cout << "Player " << players[p]->getPosition()
+						<< " loses to Blackjack.\n";
+				}
+			}
+			std::cout << std::fixed
+				<< players[p]->collectWinnings(winnings)
+				<< handInfoString(0, p) << std::endl;
+		}
+	}
+	std::cout << std::endl;
+}
+
 std::string Table::decisionMenu(bool canDD, bool canSplit) {
 	std::string temp = "S = Stand  H = Hit  ";
 	if (canDD)
@@ -491,13 +537,13 @@ double Table::bettingRecommendation(int p) const {
 	if (trueCount <= 1)
 		return DEFAULT_BET;
 	if(trueCount == 2)
-		return (std::max(bank, DEFAULT_BET*2.0));
+		return (std::min(bank, DEFAULT_BET*2.0));
 	if (trueCount == 3)
-		return (std::max(bank, DEFAULT_BET*4.0));
+		return (std::min(bank, DEFAULT_BET*4.0));
 	if (trueCount == 4)
-		return (std::max(bank, DEFAULT_BET*8.0));
+		return (std::min(bank, DEFAULT_BET*8.0));
 
-	return (std::max(bank, DEFAULT_BET*12.0));
+	return (std::min(bank, DEFAULT_BET*12.0));
 }
 
 bool Table::insuranceRecommendation(int p) const {
@@ -587,3 +633,4 @@ char Table::decisionRecommendation(int h, int p) const {
 
 	return decision;
 }
+
