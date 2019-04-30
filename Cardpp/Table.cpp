@@ -120,7 +120,7 @@ int Table::playRound() {
 		<< std::string(57, '-') << std::endl;
 
 	initDeal();
-	dealer->dealerCheat();
+	//dealer->dealerCheat();
 	print();
 
 	//Check up card
