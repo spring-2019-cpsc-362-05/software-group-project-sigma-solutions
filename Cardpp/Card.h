@@ -28,7 +28,8 @@ public:
     void showCard();
     bool setAceSoft();
     void print() const;
-    std::string setCardImage(int index, int suit);
+    QString getCardImagePath(int index, int suit);
+    void setCardImage(QString filepath);
 private:
     //2-10 for number cards. Face Cards: A = 1, J = 11, Q = 12, K = 13
     int index;
@@ -39,7 +40,7 @@ private:
     //used for the Dealer's hole card
     bool hidden;
     //image string
-    std::string imageFile;
+    QString imageFilePath;
     
     int getValue(int index) const;
 };
