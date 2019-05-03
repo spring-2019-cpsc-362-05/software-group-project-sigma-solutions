@@ -1,10 +1,4 @@
-#ifndef CARD_H
-#define CARD_H
-
-//Include QT Libraries
-#include <QGraphicsPixmapItem>
-#include <QGraphicsItem>
-
+#pragma once
 #include <iostream>
 #include <vector>
 #include <string>
@@ -14,7 +8,8 @@ static const std::vector<std::string> INDEX_STRS =
 static const std::vector<std::string> SUIT_STRS =
 { "Spades  ", "Hearts  ", "Diamonds", "Clubs   " };
 
-class Card: public QGraphicsPixmapItem{
+class Card
+{
 public:
     Card();
     Card(int _index, int _suit);
@@ -28,8 +23,6 @@ public:
     void showCard();
     bool setAceSoft();
     void print() const;
-    QString getCardImagePath(int index, int suit);
-    void setCardImage(QString filepath);
 private:
     //2-10 for number cards. Face Cards: A = 1, J = 11, Q = 12, K = 13
     int index;
@@ -39,11 +32,7 @@ private:
     int value;
     //used for the Dealer's hole card
     bool hidden;
-    //image string
-    QString imageFilePath;
     
     int getValue(int index) const;
 };
 
-
-#endif // CARD_H
