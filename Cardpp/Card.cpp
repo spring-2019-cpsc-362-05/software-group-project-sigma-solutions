@@ -33,7 +33,7 @@ std::string Card::setCardImage(int index, int suit){
         case 2: returnString += diamonds; break;
         case 3: returnString += clubs;    break;
         default:
-            qDebug("Error in Card.cpp -> Expected Card suit 1-3");
+            qDebug("Error in Card.cpp -> Expected Card suit 0-3");
     }
     return returnString;
 }
