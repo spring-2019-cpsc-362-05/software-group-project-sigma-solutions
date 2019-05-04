@@ -1,6 +1,6 @@
 #include "Shoe.h"
 
-Shoe::Shoe()
+Shoe::Shoe() : QGraphicsRectItem()
 {
 }
 
@@ -9,9 +9,9 @@ Shoe::~Shoe()
 }
 
 Shoe::Shoe(int decks) {
-	for (int d = 0; d < decks; d++) {
-		for (int s = 0; s < 4; s++) {
-			for (int i = 1; i < 14; i++) {
+    for (size_t d = 0; d < static_cast<size_t>(decks); d++) {
+        for (size_t s = 0; s < 4; s++) {
+            for (size_t i = 1; i < 14; i++) {
 				addCard(i, s);
 			}
 		}
@@ -20,33 +20,35 @@ Shoe::Shoe(int decks) {
 	trueCount = 0;
 }
 
-Shoe::Shoe(Card card, int num) {
+Shoe::Shoe(Card* card, int num) {
 	for (int i = 0; i < num; i++)
 		cards.push_back(card);
 	runningCount = 0;
 	trueCount = 0;
 }
 
-void Shoe::addCard(int index, int suit) {
-	cards.push_back(Card(index, suit));
+
+
+void Shoe::addCard(size_t index, size_t suit) {
+    cards.push_back(new Card(index, suit));
 }
 
-int Shoe::getSize() const { return static_cast<int>(cards.size()); }
+size_t Shoe::getSize() const { return cards.size(); }
 int Shoe::getRunningCount() const { return runningCount; }
 int Shoe::getTrueCount() const { return trueCount; }
 
 
-Card Shoe::deal() {
-	Card temp = cards.back();
+Card* Shoe::deal() {
+    Card* temp = cards.back();
 	updateCounts(temp);
 	cards.pop_back();
 	return temp;
 }
 
-Card Shoe::dealHidden() {
-	Card temp = cards.back();
+Card* Shoe::dealHidden() {
+    Card* temp = cards.back();
 	cards.pop_back();
-	temp.hideCard();
+    temp->hideCard();
 	return temp;
 }
 
@@ -57,9 +59,9 @@ void Shoe::shuffle(int times) {
 }
 
 void Shoe::print() const {
-	int len = getSize();
-	for (int i = 0; i < len; i++) {
-		cards[i].print();
+    size_t len = getSize();
+    for (size_t i = 0; i < len; i++) {
+        cards[i]->print();
 		std::cout << std::endl;
 	}
 }
@@ -69,7 +71,7 @@ void Shoe::printCounts() const {
 		<< "\tTrue Count: " << ((trueCount > 0) ? "+" : "") << trueCount << std::endl;
 }
 
-void Shoe::updateCounts(Card c) {
-	runningCount += c.getCountValue();
-	trueCount = runningCount / ((int)(cards.size() / 52));
+void Shoe::updateCounts(Card* c) {
+    runningCount += c->getCountValue();
+    trueCount = runningCount / (static_cast<int>(cards.size() / 52));
 }

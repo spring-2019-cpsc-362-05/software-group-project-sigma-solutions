@@ -1,15 +1,16 @@
-﻿#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <random>
+﻿#include "staticvars.h"
+#include "Card.h"
+#include "Game.h"
 
-#include "Shoe.h"
-#include "Player.h"
-#include "Table.h"
+int main(int argc, char* argv[]) {
 
-#include <random>
+    QApplication a(argc, argv);
+    static Game* game = new Game();
 
-int main() {
+    qDebug() << (W_WIDTH);
+
+    game->run();
+/*
 	int numDecks = 4;
 
 	std::cout.precision(2);
@@ -18,18 +19,17 @@ int main() {
 	//Shoe* shoe = new Shoe(Card(1, 0), 1000);
 	shoe->shuffle(3);
 
-	Card temp;
-	int round = 1;
-	int remainingCards = shoe->getSize();
-	//active, control, strategy
-	Table table(shoe, 1, 1, 255);
-	int numPlaying = table.getNumPlaying();
+    Card temp;
+    size_t remainingCards = shoe->getSize();
+    //active(1-127), control(0-127), strategy(0-127)
+    Table table(shoe, 7, 0, 127);
+    size_t numPlaying = table.getNumPlaying();
 
 
 	int cutCard = uni(rng);
 	std::cout << "Cut Card: " << cutCard << std::endl;
 
-	while (((remainingCards - (numPlaying + 1) * 3) > cutCard)
+    while ((static_cast<int>(remainingCards) - (static_cast<int>(numPlaying) + 1) * 3) > cutCard
 		&& table.getNumPlaying() > 0) {
 
 		table.placeBets();
@@ -46,5 +46,7 @@ int main() {
 		std::cout << "Everyone is out of money. Ending game.";
 
 	table.~Table();
-	return 0;
+*/
+
+    return a.exec();
 }

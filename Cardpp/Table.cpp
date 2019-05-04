@@ -1,21 +1,24 @@
 #include "Table.h"
 
-Table::Table()
+Table::Table() : QObject(), QGraphicsRectItem()
 {
 }
 
-Table::Table(Shoe* _shoe, int _active, int _control, int _strategy) {
+Table::Table(Shoe* _shoe, int _active, int _control, int _strategy){
 	round = 1;
 	numPlaying = 0;
 	shoe = _shoe;
-	busts = 0;
-	for (int i = 0; i < MAX_PLAYERS; i++) {
-		players.push_back(new Player("computer", i+1));
-	}
+    busts = 0;
+    for (int i = 0; i < MAX_PLAYERS; i++) {
+        players.push_back(new Player(false, i+1));
+    }
 	setPlaying(_active);
 	setPlayerControl(_control);
-	dealer = new Player("dealer", 0);
+    setStrategy(_strategy);
+    dealer = new Player(true, 0);
+    setRect(0,0,W_WIDTH, W_HEIGHT);
 }
+
 
 Table::~Table(){
 	while(!players.empty()) {
@@ -24,10 +27,22 @@ Table::~Table(){
 	}
 }
 
-int Table::getNumPlaying() const { return numPlaying; }
+void Table::draw(QGraphicsScene* _scene){
+    qDebug() << "Adding Table to scene.";
+    _scene->addItem(this);
+    qDebug() << "Added Table to scene.";
+    dealer->draw(_scene);
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
+        if(players[i]->isPlaying()){
+            players[i]->draw(_scene);
+        }
+    }
+}
+
+size_t Table::getNumPlaying() const { return numPlaying; }
 
 void Table::print() const {
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			players[i]->print();
 		}
@@ -37,14 +52,14 @@ void Table::print() const {
 }
 
 void Table::setPlayerControl(int _control) {
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (((_control >> i) & 1) == 1)
 			players[i]->setUserControlled();
 	}
 }
 
 void Table::setPlaying(int _active) {
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (((_active >> i) & 1) == 1) {
 			players[i]->activate();
 			numPlaying++;
@@ -53,7 +68,7 @@ void Table::setPlaying(int _active) {
 }
 
 void Table::setStrategy(int _strategy) {
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (((_strategy >> i) & 1) == 1) {
 			players[i]->setStrategy(true);
 		}
@@ -63,7 +78,7 @@ void Table::setStrategy(int _strategy) {
 void Table::placeBets() {
 	double bank = 0;
 	int bet = DEFAULT_BET;
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			shoe->printCounts();
 			std::cout << "Recomended bet: $" << std::fixed
@@ -111,9 +126,9 @@ void Table::initDeal() {
 	dealer->dealCard(0, shoe->deal());
 }
 
-int Table::playRound() {
-	int remainingCards = shoe->getSize();
-	Card temp;
+size_t Table::playRound() {
+    size_t remainingCards = shoe->getSize();
+    Card temp(parentItem());
 
 	std::cout << std::string(57, '-') << std::endl << "Round " << round
 		<< ": " << remainingCards << " cards remaining.\n"
@@ -124,7 +139,7 @@ int Table::playRound() {
 	print();
 
 	//Check up card
-	int dealerShowing = dealer->getShowing();
+    size_t dealerShowing = dealer->getShowing();
 	bool dealerBJ = false;
 	//Insurance only offered with Ace up card.
 	if (dealerShowing == 1) {
@@ -133,7 +148,7 @@ int Table::playRound() {
 
 	if (!dealerBJ) {
 		busts = 0;
-		for (int i = 0; i < MAX_PLAYERS; i++) {
+        for (size_t i = 0; i < MAX_PLAYERS; i++) {
 			if (players[i]->isPlaying())
 				playerTurn(i);
 		}
@@ -143,14 +158,14 @@ int Table::playRound() {
 	}
 	else {
 		std::cout << "\nShowing Dealer's Hole Card:\n";
-		Card temp = dealer->showHoleCard();
+        Card* temp = dealer->showHoleCard();
 		shoe->updateCounts(temp);
 		dealer->print();
 		std::cout << "Dealer has Blackjack!\n";
 		payInsurance();
 	}
 
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		players[i]->reset();
 	}
 	dealer->reset();
@@ -164,7 +179,7 @@ bool Table::offerInsurance() {
 	int bet;
 	double bank;
 
-	for (int i = 0; i < MAX_PLAYERS; i++) {
+    for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (players[i]->isPlaying()) {
 			bet = players[i]->getBet();
 			bank = players[i]->getBank();
@@ -182,7 +197,7 @@ bool Table::offerInsurance() {
 				}
 				else {
 					shoe->printCounts();
-					std::cout << "You should" << (insuranceRecommendation(i)? " " : "n't ")
+                    std::cout << "You should" << (insuranceRecommendation()? " " : "n't ")
 						<< "take insurance.\n";
 					std::cout << "Player " << players[i]->getPosition()
 						<< " would you like insurance? Y/N ==> ";
@@ -212,11 +227,11 @@ bool Table::offerInsurance() {
 		}
 		valid = false;
 	}
-	return dealer->hand(0).hasBlackjack();
+    return dealer->getHand(0)->hasBlackjack();
 }
 
-void Table::playerTurn(int p) {
-	for (int h = 0; h < players[p]->getNumHands(); h++) {
+void Table::playerTurn(size_t p) {
+    for (size_t h = 0; h < players[p]->getNumHands(); h++) {
 		players[p]->printPlayer();
 		if (!dealer->hasBlackjack(0)) {
 			if (!players[p]->isControlled())
@@ -225,19 +240,18 @@ void Table::playerTurn(int p) {
 				userTurn(h, p);
 		}
 
-		if (players[p]->hand(h).getScore() > 21) {
+        if (players[p]->getHand(h)->getScore() > 21) {
 			busts++;
 		}
 	}
 }
 
-void Table::computerTurn(int h, int p) {
-	int dealerShowing = dealer->getShowing();
+void Table::computerTurn(size_t h, size_t p) {
 	char decision;
 	bool turn = true;
 
 	players[p]->printHand(h);
-	if (players[p]->hand(h).hasBlackjack()) {
+    if (players[p]->getHand(h)->hasBlackjack()) {
 		turn = false;
 		std::cout << "Player " << players[p]->getPosition() << " has Blackjack!\n";
 	}
@@ -248,19 +262,19 @@ void Table::computerTurn(int h, int p) {
 	}
 }
 
-char Table::basicStrategyDecision(int h, int p) const {
+char Table::basicStrategyDecision(size_t h, size_t p) const {
 	char decision;
-	int dealerShowing = dealer->getShowing();
+    size_t dealerShowing = dealer->getShowing();
 	if (players[p]->canSplit(h)) {
-		decision = BASIC_STRAT_SPLIT[players[p]->hand(h)[0].getIndex() - SPLIT_MOD][dealerShowing - SPLIT_MOD];
+        decision = BASIC_STRAT_SPLIT[players[p]->getHand(h)->getCard(0)->getIndex() - SPLIT_MOD][dealerShowing - SPLIT_MOD];
 	}
-	else if (players[p]->hand(h).size() == 1) {
-		decision = BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1];
+    else if (players[p]->getHand(h)->size() == 1) {
+        decision = BASIC_STRAT_H[players[p]->getHand(h)->getScore() - HARD_MOD][dealerShowing - 1];
 	}
 	else {
-		decision = (players[p]->hand(h).isSoft() ?
-			BASIC_STRAT_S[players[p]->hand(h).getScore() - SOFT_MOD][dealerShowing - 1] :
-			BASIC_STRAT_H[players[p]->hand(h).getScore() - HARD_MOD][dealerShowing - 1]);
+        decision = (players[p]->getHand(h)->isSoft() ?
+            BASIC_STRAT_S[players[p]->getHand(h)->getScore() - SOFT_MOD][dealerShowing - 1] :
+            BASIC_STRAT_H[players[p]->getHand(h)->getScore() - HARD_MOD][dealerShowing - 1]);
 	}
 
 	if (decision == 'D' && !players[p]->canDoubleDown(h))
@@ -269,39 +283,35 @@ char Table::basicStrategyDecision(int h, int p) const {
 	return decision;
 }
 
-bool Table::makeDecision(int h, int p, char decision) {
+bool Table::makeDecision(size_t h, size_t p, char decision) {
 	switch (decision) {
 	case 'D': //Double Down
 		std::cout << "Player " << players[p]->getPosition() << " doubles down.\n";
-		return doubleDown(h, p);
-		break;
+        return doubleDown(h, p);
 	case 'S': //Stand
 		std::cout << "Player " << players[p]->getPosition() << " stands with "
-			<< players[p]->hand(h).getScore() << ".\n";
-		return false;
-		break;
+            << players[p]->getHand(h)->getScore() << ".\n";
+        return false;
 	case 'H': //Hit
 		std::cout << "Player " << players[p]->getPosition() << " hits.\n";
-		return hit(h, p);
-		break;
+        return hit(h, p);
 	case 'P':
 		std::cout << "Player " << players[p]->getPosition() << " splits.\n";
 		return split(h, p);
 	default:
 		std::cerr << "Decision " << decision << " not recognized.\n";
-		return false;
-		break;
+        return false;
 	}
 }
 
-void Table::userTurn(int h, int p) {
-	char decision;
+void Table::userTurn(size_t h, size_t p) {
+    char decision = '\0';
 	bool turn = true,
 		valid = false,
-		canDD,
-		canSplit;
+        canDD = true,
+        canSplit = true;
 	
-	if (players[p]->hand(h).hasBlackjack()) {
+    if (players[p]->getHand(h)->hasBlackjack()) {
 		turn = false;
 		std::cout << "Player " << players[p]->getPosition() << " has Blackjack!\n";
 	}
@@ -317,7 +327,7 @@ void Table::userTurn(int h, int p) {
 			<< handInfoString(h, p) << decisionMenu(canDD, canSplit);
 		while (!valid) {
 			std::cin >> decision;
-			decision = toupper(decision);
+            decision = static_cast<char>(toupper(decision));
 			valid = validDecision(decision, canDD, canSplit);
 			if(!valid)
 				std::cout << "Please enter valid decision.\t" 
@@ -330,10 +340,8 @@ void Table::userTurn(int h, int p) {
 }
 
 void Table::dealerTurn() {
-	int dealerScore = dealer->hand(0).getScore();
-	bool soft = dealer->hand(0).isSoft();
 	std::cout << "\nShowing Dealer's Hole Card:\n";
-	Card temp = dealer->showHoleCard();
+    Card* temp = dealer->showHoleCard();
 	shoe->updateCounts(temp);
 	dealer->print();
 
@@ -342,37 +350,37 @@ void Table::dealerTurn() {
 			std::cout << "Dealer hits.\n";
 			dealer->dealCard(0, shoe->deal());
 			dealer->printHand(0);
-			if (dealer->hand(0).getScore() > 21)
-				std::cout << "Dealer busted with " << dealer->hand(0).getScore() << "!\n";
+            if (dealer->getHand(0)->getScore() > 21)
+                std::cout << "Dealer busted with " << dealer->getHand(0)->getScore() << "!\n";
 		}
 
-		if (dealer->hand(0).getScore() <= 21)
-			std::cout << "Dealer stands with " << dealer->hand(0).getScore() << ".\n";
+        if (dealer->getHand(0)->getScore() <= 21)
+            std::cout << "Dealer stands with " << dealer->getHand(0)->getScore() << ".\n";
 	}
 	else
 		std::cout << "Everyone busted. Dealer wins!\n";
 }
 
-bool Table::hit(int h, int p) {
+bool Table::hit(size_t h, size_t p) {
 	players[p]->dealCard(h, shoe->deal());
 	players[p]->printHand(h);
-	players[p]->hand(h).incReceived();
-	if (players[p]->hand(h).getScore() > 21) {
+    players[p]->getHand(h)->incReceived();
+    if (players[p]->getHand(h)->getScore() > 21) {
 		std::cout << "Player " << players[p]->getPosition() << " Busted with " <<
-			players[p]->hand(h).getScore() << ".\n";
+            players[p]->getHand(h)->getScore() << ".\n";
 		return false;
 	}
 	else
 		return true;
 }
 
-bool Table::doubleDown(int h, int p) {
+bool Table::doubleDown(size_t h, size_t p) {
 	players[p]->takeBet(h, players[p]->getBet());
 	hit(h, p);
 	return false;
 }
 
-bool Table::split(int h, int p) {
+bool Table::split(size_t h, size_t p) {
 	players[p]->split(h, players[p]->getBet());
 	players[p]->printHand(h);
 	return true;
@@ -380,19 +388,19 @@ bool Table::split(int h, int p) {
 
 void Table::printWinners() {
 	std::cout << "\nResults:\n";
-	int dealerScore = dealer->hand(0).getScore();
+    int dealerScore = dealer->getHand(0)->getScore();
 	int score = 0;
-	bool dealerBJ = dealer->hand(0).hasBlackjack(),
+    bool dealerBJ = dealer->getHand(0)->hasBlackjack(),
 		playerBJ = false,
 		playerIns = false;
 	int bet;
 	double winnings;
-	for (int p = 0; p < MAX_PLAYERS; p++) {
+    for (size_t p = 0; p < MAX_PLAYERS; p++) {
 		if (players[p]->isPlaying()) {
-			for(int h = 0; h < players[p]->getNumHands(); h++){
-				bet = players[p]->hand(h).getBet();
+            for(size_t h = 0; h < players[p]->getNumHands(); h++){
+                bet = players[p]->getHand(h)->getBet();
 				winnings = 0;
-				playerBJ = players[p]->hand(h).hasBlackjack();
+                playerBJ = players[p]->getHand(h)->hasBlackjack();
 				//Dealer has uninsureable Blackjack
 				if (dealerBJ) {
 					if (playerBJ) {
@@ -417,7 +425,7 @@ void Table::printWinners() {
 						winnings = bet * 2.5;
 					}
 					else if (dealerScore > 21) {
-						if ((score = players[p]->hand(h).getScore()) <= 21) {
+                        if ((score = players[p]->getHand(h)->getScore()) <= 21) {
 							std::cout << "Player " << players[p]->getPosition()
 								<< " wins from dealer bust";
 							winnings = bet * 2;
@@ -428,7 +436,7 @@ void Table::printWinners() {
 						}
 					}
 					else {
-						if ((score = players[p]->hand(h).getScore()) > dealerScore && score <= 21) {
+                        if ((score = players[p]->getHand(h)->getScore()) > dealerScore && score <= 21) {
 							std::cout << "Player " << players[p]->getPosition()
 								<< " wins with " << score;
 							winnings = bet * 2;
@@ -463,14 +471,14 @@ void Table::payInsurance() {
 	bool playerBJ = false,
 		playerIns = false;
 	int bet;
-	double winnings;
+    double winnings = 0;
 
-	for (int p = 0; p < MAX_PLAYERS; p++) {
+    for (size_t p = 0; p < MAX_PLAYERS; p++) {
 		if (players[p]->isPlaying()) {
-			for (int h = 0; h < players[p]->getNumHands(); h++) {
-				bet = players[p]->hand(h).getBet();
+            for (size_t h = 0; h < players[p]->getNumHands(); h++) {
+                bet = players[p]->getHand(h)->getBet();
 				winnings = 0;
-				playerBJ = players[p]->hand(h).hasBlackjack();
+                playerBJ = players[p]->getHand(h)->hasBlackjack();
 				playerIns = players[p]->hasInsurance();
 				//Insured Blackjack
 				if (playerBJ && playerIns) {
@@ -522,7 +530,7 @@ bool Table::validDecision(char decision, bool canDD, bool canSplit) {
 	return false;
 }
 
-std::string Table::handInfoString(int h, int p) {
+std::string Table::handInfoString(size_t h, size_t p) {
 	std::string temp = "";
 	if (players[p]->getNumHands() > 1)
 		temp += (" for Hand " + std::to_string(h + 1));
@@ -530,7 +538,7 @@ std::string Table::handInfoString(int h, int p) {
 	return temp;
 }
 
-double Table::bettingRecommendation(int p) const {
+double Table::bettingRecommendation(size_t p) const {
 	int trueCount = shoe->getTrueCount();
 	double bank = players[p]->getBank();
 	if (trueCount <= 1)
@@ -545,13 +553,13 @@ double Table::bettingRecommendation(int p) const {
 	return (std::min(bank, DEFAULT_BET*12.0));
 }
 
-bool Table::insuranceRecommendation(int p) const {
+bool Table::insuranceRecommendation() const {
 	return (shoe->getTrueCount() >= 3);
 }
 
-char Table::decisionRecommendation(int h, int p) const {
+char Table::decisionRecommendation(size_t h, size_t p) const {
 	int score = players[p]->getScore(h);
-	int dealerValue = dealer->hand(0)[1].getValue();
+    int dealerValue = dealer->getHand(h)->getCard(1)->getValue();
 	int trueCount = shoe->getTrueCount();
 
 	char decision = basicStrategyDecision(h, p);
