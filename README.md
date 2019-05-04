@@ -3,6 +3,6 @@ software-group-project-sigma-solutions created by GitHub Classroom
 
 Nick Bernstein
 Johsh Roberts
-Brandon Levello
+Brandon Lavello
 Gregory Vasquez
 Hyun Woo Kim
