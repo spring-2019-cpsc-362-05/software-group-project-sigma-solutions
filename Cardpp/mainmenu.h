@@ -24,14 +24,6 @@ public:
     int getMinimumBet();
 
 private slots:
-    //UserControlled States
-    void on_player1UC_stateChanged(int arg1);
-    void on_player2UC_stateChanged(int arg1);
-    void on_player3UC_stateChanged(int arg1);
-    void on_player4UC_stateChanged(int arg1);
-    void on_player5UC_stateChanged(int arg1);
-    void on_player6UC_stateChanged(int arg1);
-
     //Active States
     void on_player1Active_stateChanged(int arg1);
     void on_player2Active_stateChanged(int arg1);
@@ -39,6 +31,16 @@ private slots:
     void on_player4Active_stateChanged(int arg1);
     void on_player5Active_stateChanged(int arg1);
     void on_player6Active_stateChanged(int arg1);
+    void on_player7Active_stateChanged(int arg1);
+
+    //UserControlled States
+    void on_player1UC_stateChanged(int arg1);
+    void on_player2UC_stateChanged(int arg1);
+    void on_player3UC_stateChanged(int arg1);
+    void on_player4UC_stateChanged(int arg1);
+    void on_player5UC_stateChanged(int arg1);
+    void on_player6UC_stateChanged(int arg1);
+    void on_player7UC_stateChanged(int arg1);
 
     //Game Options
     void on_numberOfDecksSpinBox_valueChanged(int arg1);
@@ -50,13 +52,15 @@ private slots:
 
 private:
     Ui::mainMenu *ui;
-    std::bitset<6> _playersActive = 000000;
-    std::bitset<6> _playersUserControlled = 000000;
+    std::bitset<7> _playersActive = 000000;
+    std::bitset<7> _playersUserControlled = 000000;
+
+    bool _playerIsActive = false;
 
     //Store player states
     struct player {
         int active, userControlled = false;
-    } _player[6];
+    } _player[7];
 
     //Store Game Option
     int _numberOfDecks, _startBank, _minBet;

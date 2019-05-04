@@ -6,29 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
+    <width>720</width>
     <height>320</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>912</width>
+    <width>720</width>
     <height>320</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>912</width>
+    <width>720</width>
     <height>320</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Card++ Main Menu</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>720</x>
+     <x>530</x>
      <y>250</y>
      <width>161</width>
      <height>41</height>
@@ -98,7 +98,7 @@
   <widget class="QLabel" name="startingBankLabel">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>140</x>
      <y>260</y>
      <width>91</width>
      <height>21</height>
@@ -116,7 +116,7 @@
   <widget class="QLabel" name="minimumBetLabel">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>330</x>
      <y>260</y>
      <width>91</width>
      <height>21</height>
@@ -177,9 +177,9 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>140</x>
      <y>110</y>
-     <width>121</width>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -196,7 +196,7 @@
    <widget class="QCheckBox" name="player1Active">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>30</x>
       <y>30</y>
       <width>82</width>
       <height>17</height>
@@ -210,14 +210,14 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string/>
     </property>
    </widget>
    <widget class="QCheckBox" name="player1UC">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>50</y>
+      <x>30</x>
+      <y>60</y>
       <width>101</width>
       <height>21</height>
      </rect>
@@ -230,16 +230,16 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string/>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="player2GroupBox">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>220</x>
      <y>110</y>
-     <width>111</width>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -256,9 +256,9 @@
    <widget class="QCheckBox" name="player2Active">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
-      <width>82</width>
+      <width>21</width>
       <height>17</height>
      </rect>
     </property>
@@ -270,15 +270,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string> </string>
     </property>
    </widget>
    <widget class="QCheckBox" name="player2UC">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>101</width>
+      <x>30</x>
+      <y>60</y>
+      <width>21</width>
       <height>21</height>
      </rect>
     </property>
@@ -290,16 +290,16 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string> </string>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="player3GroupBox">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>300</x>
      <y>109</y>
-     <width>120</width>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -316,9 +316,9 @@
    <widget class="QCheckBox" name="player3Active">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
-      <width>82</width>
+      <width>16</width>
       <height>17</height>
      </rect>
     </property>
@@ -330,15 +330,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string/>
     </property>
    </widget>
    <widget class="QCheckBox" name="player3UC">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>101</width>
+      <x>30</x>
+      <y>60</y>
+      <width>16</width>
       <height>21</height>
      </rect>
     </property>
@@ -350,16 +350,16 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string/>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="player4GroupBox">
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>109</y>
-     <width>120</width>
+     <x>380</x>
+     <y>110</y>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -376,9 +376,9 @@
    <widget class="QCheckBox" name="player4Active">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
-      <width>82</width>
+      <width>16</width>
       <height>17</height>
      </rect>
     </property>
@@ -390,15 +390,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string> </string>
     </property>
    </widget>
    <widget class="QCheckBox" name="player4UC">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>101</width>
+      <x>30</x>
+      <y>60</y>
+      <width>16</width>
       <height>21</height>
      </rect>
     </property>
@@ -410,16 +410,16 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string> </string>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="player5GroupBox">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>460</x>
      <y>110</y>
-     <width>120</width>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -436,9 +436,9 @@
    <widget class="QCheckBox" name="player5Active">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
-      <width>82</width>
+      <width>16</width>
       <height>17</height>
      </rect>
     </property>
@@ -450,15 +450,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string> </string>
     </property>
    </widget>
    <widget class="QCheckBox" name="player5UC">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>101</width>
+      <x>30</x>
+      <y>60</y>
+      <width>16</width>
       <height>21</height>
      </rect>
     </property>
@@ -470,16 +470,16 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string> </string>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="player7GroupBox">
    <property name="geometry">
     <rect>
-     <x>780</x>
+     <x>620</x>
      <y>110</y>
-     <width>120</width>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -496,9 +496,9 @@
    <widget class="QCheckBox" name="player7Active">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
-      <width>82</width>
+      <width>21</width>
       <height>17</height>
      </rect>
     </property>
@@ -510,15 +510,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string> </string>
     </property>
    </widget>
    <widget class="QCheckBox" name="player7UC">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>101</width>
+      <x>30</x>
+      <y>60</y>
+      <width>16</width>
       <height>21</height>
      </rect>
     </property>
@@ -530,16 +530,16 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string/>
     </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="player6GroupBox">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>109</y>
-     <width>120</width>
+     <x>540</x>
+     <y>110</y>
+     <width>71</width>
      <height>91</height>
     </rect>
    </property>
@@ -556,9 +556,9 @@
    <widget class="QCheckBox" name="player6Active">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>30</y>
-      <width>82</width>
+      <width>16</width>
       <height>17</height>
      </rect>
     </property>
@@ -570,15 +570,15 @@
      </font>
     </property>
     <property name="text">
-     <string>Active?</string>
+     <string> </string>
     </property>
    </widget>
    <widget class="QCheckBox" name="player6UC">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>101</width>
+      <x>30</x>
+      <y>60</y>
+      <width>16</width>
       <height>21</height>
      </rect>
     </property>
@@ -590,14 +590,14 @@
      </font>
     </property>
     <property name="text">
-     <string>User Controlled?</string>
+     <string> </string>
     </property>
    </widget>
   </widget>
   <widget class="QSpinBox" name="startingBankSpinBox">
    <property name="geometry">
     <rect>
-     <x>240</x>
+     <x>230</x>
      <y>260</y>
      <width>91</width>
      <height>22</height>
@@ -619,7 +619,7 @@
   <widget class="QSpinBox" name="minimumBetSpinBox">
    <property name="geometry">
     <rect>
-     <x>450</x>
+     <x>420</x>
      <y>260</y>
      <width>91</width>
      <height>22</height>
@@ -636,6 +636,52 @@
    </property>
    <property name="value">
     <number>5</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>140</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Active</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>111</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>User Controlled</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
   <zorder>player7GroupBox</zorder>
@@ -655,6 +701,8 @@
   <zorder>gameOptionsLabel</zorder>
   <zorder>startingBankSpinBox</zorder>
   <zorder>minimumBetSpinBox</zorder>
+  <zorder>label</zorder>
+  <zorder>label_2</zorder>
  </widget>
  <resources/>
  <connections>
