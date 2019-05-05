@@ -1,25 +1,25 @@
-#ifndef MAINMENU_H
-#define MAINMENU_H
+#ifndef INGAMEMENU_H
+#define INGAMEMENU_H
 
 #include <QDialog>
 #include <bitset>
+#include "game.h"
 #include <QObject>
+#include <QString>
 #include <QDebug>
 #include <QMessageBox>
-#include "game.h"
-#include "inGameMenu.h"
 
 namespace Ui {
-class mainMenu;
+class inGameMenu;
 }
 
-class mainMenu : public QDialog
+class inGameMenu : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit mainMenu(QWidget *parent = nullptr);
-    ~mainMenu();
+    explicit inGameMenu(QWidget *parent = nullptr);
+    ~inGameMenu();
 
     //Getter functions
     unsigned long getPlayersActive();
@@ -52,16 +52,17 @@ private slots:
     void on_startingBankSpinBox_valueChanged(int arg1);
     void on_minimumBetSpinBox_valueChanged(int arg1);
 
-    //Start Button
-    void on_startButton_clicked();
+    //Buttons
+    void on_exitGameButton_clicked();
+    void on_closeMenuButton_clicked();
+    void on_startNewGameButton_clicked();
 
 private:
-    Ui::mainMenu *ui;
+    Ui::inGameMenu *ui;
     std::bitset<7> _playersActive = 000000;
     std::bitset<7> _playersUserControlled = 000000;
     bool _playerIsActive = false;
-
-    //Store player states
+    //Store player states in struct arry of 7
     struct player {
         int active, userControlled = false;
     } _player[7];
@@ -70,4 +71,4 @@ private:
     int _numberOfDecks, _startBank, _minBet;
 };
 
-#endif // MAINMENU_H
+#endif // INGAMEMENU_H

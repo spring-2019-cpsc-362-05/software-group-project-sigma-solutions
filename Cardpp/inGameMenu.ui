@@ -1,51 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>mainMenu</class>
- <widget class="QDialog" name="mainMenu">
+ <class>inGameMenu</class>
+ <widget class="QDialog" name="inGameMenu">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>720</width>
-    <height>320</height>
+    <height>370</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>720</width>
-    <height>320</height>
+    <height>370</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>720</width>
-    <height>320</height>
+    <height>370</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Card++ Main Menu</string>
+   <string>Card++ Game Menu</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>620</x>
-     <y>250</y>
-     <width>81</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Close</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="mainMenuLabel">
    <property name="geometry">
     <rect>
@@ -63,7 +42,7 @@
     </font>
    </property>
    <property name="text">
-    <string>CARD++ MAIN MENU</string>
+    <string>CARD++ GAME MENU</string>
    </property>
   </widget>
   <widget class="QLabel" name="numberOfDecksLabel">
@@ -208,7 +187,7 @@
      <rect>
       <x>30</x>
       <y>30</y>
-      <width>21</width>
+      <width>16</width>
       <height>17</height>
      </rect>
     </property>
@@ -244,9 +223,6 @@
     </property>
     <property name="text">
      <string/>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -728,11 +704,11 @@
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="startButton">
+  <widget class="QPushButton" name="exitGameButton">
    <property name="geometry">
     <rect>
-     <x>534</x>
-     <y>260</y>
+     <x>620</x>
+     <y>320</y>
      <width>81</width>
      <height>23</height>
     </rect>
@@ -743,20 +719,43 @@
     </font>
    </property>
    <property name="text">
-    <string>Start Game</string>
+    <string>Exit Game</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="startNewGameButton">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>220</y>
-     <width>75</width>
+     <x>410</x>
+     <y>320</y>
+     <width>111</width>
      <height>23</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Start New Game</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="closeMenuButton">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>320</y>
+     <width>81</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Close Menu</string>
    </property>
   </widget>
   <zorder>player7GroupBox</zorder>
@@ -766,7 +765,6 @@
   <zorder>player4GroupBox</zorder>
   <zorder>player2GroupBox</zorder>
   <zorder>player1GroupBox</zorder>
-  <zorder>buttonBox</zorder>
   <zorder>mainMenuLabel</zorder>
   <zorder>numberOfDecksLabel</zorder>
   <zorder>numberOfDecksSpinBox</zorder>
@@ -778,42 +776,10 @@
   <zorder>minimumBetSpinBox</zorder>
   <zorder>label</zorder>
   <zorder>label_2</zorder>
-  <zorder>startButton</zorder>
-  <zorder>pushButton_2</zorder>
+  <zorder>exitGameButton</zorder>
+  <zorder>startNewGameButton</zorder>
+  <zorder>closeMenuButton</zorder>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>mainMenu</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>mainMenu</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
