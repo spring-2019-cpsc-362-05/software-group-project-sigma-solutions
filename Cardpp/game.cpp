@@ -7,7 +7,7 @@ Game::Game(QWidget *parent) {
     //Create Scene
     scene = new QGraphicsScene();
     scene->setSceneRect(0,0,1200,600);
-    setBackgroundBrush(QBrush(QImage(":/images/table.png")));
+    setBackgroundBrush(QBrush(QImage(":/images/table.jpg")));
     
     setScene(scene);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
