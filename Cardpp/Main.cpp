@@ -1,4 +1,4 @@
-﻿#include "staticvars.h"
+﻿#include "StaticVars.h"
 #include "Card.h"
 #include "Game.h"
 
@@ -6,8 +6,6 @@ int main(int argc, char* argv[]) {
 
     QApplication a(argc, argv);
     static Game* game = new Game();
-
-    qDebug() << (W_WIDTH);
 
     game->run();
 /*

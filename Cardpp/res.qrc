@@ -1,5 +1,6 @@
 <RCC>
-    <qresource prefix="/cards">
+    <qresource prefix="/graphics">
+        <file>cards/card_back.png</file>
         <file>cards/Clubs-2.png</file>
         <file>cards/Clubs-3.png</file>
         <file>cards/Clubs-4.png</file>
@@ -24,6 +25,7 @@
         <file>cards/Diamonds-10.png</file>
         <file>cards/Diamonds-A.png</file>
         <file>cards/Diamonds-J.png</file>
+        <file>cards/Diamonds-K.png</file>
         <file>cards/Diamonds-Q.png</file>
         <file>cards/Hearts-2.png</file>
         <file>cards/Hearts-3.png</file>
@@ -51,7 +53,8 @@
         <file>cards/Spades-J.png</file>
         <file>cards/Spades-K.png</file>
         <file>cards/Spades-Q.png</file>
-        <file>cards/card_back.png</file>
-        <file>cards/Diamonds-K.png</file>
+        <file>other/table.png</file>
+        <file>other/hand.png</file>
+        <file>other/button.png</file>
     </qresource>
 </RCC>

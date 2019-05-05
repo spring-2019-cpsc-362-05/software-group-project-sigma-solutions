@@ -1,23 +1,36 @@
 #include "Hand.h"
 
 
-Hand::Hand(QGraphicsPixmapItem* parent) : QObject(), QGraphicsPixmapItem(parent)
+Hand::Hand(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent)
 {
-	std::vector<Card> cards;
+    std::vector<Card*> cards;
 	score = 0;
 	received = 0;
 	bet = 0;
     handIndex = 0;
 
+    scoreLabel = new QGraphicsTextItem(this);
+    scoreLabel->setPos(0,0);
+    scoreLabel->setDefaultTextColor(Qt::red);
+    scoreLabel->setFont(QFont("Times", 20, QFont::Bold));
+    scoreLabel->setZValue(1);
+
+    //setPixmap(QPixmap(QString(":/graphics/other/hand.png")).scaled(P_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
 }
 
 Hand::Hand(size_t index)
 {
-    std::vector<Card> cards;
+    std::vector<Card*> cards;
     score = 0;
     received = 0;
     bet = 0;
     handIndex = index;
+    scoreLabel = new QGraphicsTextItem(this);
+    scoreLabel->setPos(0,0);
+    scoreLabel->setDefaultTextColor(Qt::red);
+    scoreLabel->setFont(QFont("Times", 20, QFont::Bold));
+    scoreLabel->setZValue(1);
+    //setPixmap(QPixmap(QString(":/graphics/other/hand.png")).scaled(P_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
 }
 
 
@@ -27,6 +40,13 @@ Hand::Hand(const Hand& _hand)
     score = _hand.score;
     received = _hand.received;
     bet = _hand.bet;
+    scoreLabel = new QGraphicsTextItem(this);
+    scoreLabel->setPos(0,0);
+    scoreLabel->setDefaultTextColor(Qt::red);
+    scoreLabel->setFont(QFont("Times", 20, QFont::Bold));
+    scoreLabel->setZValue(1);
+
+    //setPixmap(QPixmap(QString(":/graphics/other/hand.png")).scaled(P_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
 }
 
 Hand::~Hand()
@@ -90,7 +110,8 @@ bool Hand::updateScore(Card* card) {
 
 	if (score > 21) {
 		return softenHand();
-	}
+    }
+    repositionScore();
 	return true;
 }
 
@@ -104,7 +125,7 @@ bool Hand::isSoft() const {
 
 
 int Hand::recalculateScore() {
-    int score = 0;
+    score = 0;
     for (size_t i = 0; i < cards.size(); i++) {
         if (!cards[i]->isHidden()) {
             if (cards[i]->getIndex() == 1) {
@@ -116,13 +137,13 @@ int Hand::recalculateScore() {
 			else {
                 score += cards[i]->getValue();
 			}
-		}
-	}
+        }
+	}    
+    repositionScore();
 
 	while (isSoft() && score > 21) {
 		softenHand();
-	}
-
+    }
 	return score;
 }
 
@@ -132,19 +153,25 @@ bool Hand::hasBlackjack() const {
 }
 
 void Hand::dealCard(Card* card) {
-    Card* temp = new Card(card);
-    temp->setPixmap(QPixmap(card->getCardImageFileName()));
+    Card* temp = new Card(card, this);
+    setPixmap(QPixmap(card->getCardImageFileName()).scaled(C_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
     cards.push_back(temp);
     updateScore(temp);
+    int xPos = (static_cast<int>(cards.size())-1)*C_WIDTH/3;
+    temp->setX(xPos);
+    repositionScore();
     delete card;
     card = nullptr;
 }
 
 void Hand::dealHidden(Card* card) {
-    Card* temp = new Card(card);
-    temp->setPixmap(QPixmap(card->getCardImageFileName()));
+    Card* temp = new Card(card, this);
     temp->hideCard();
+    setPixmap(QPixmap(card->getCardImageFileName()).scaled(C_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
     cards.push_back(temp);
+    int xPos = (static_cast<int>(cards.size())-1)*C_WIDTH/3;
+    temp->setX(xPos);
+    repositionScore();
     delete card;
     card = nullptr;
 }
@@ -155,10 +182,16 @@ void Hand::reset() {
 	received = 0;
 }
 
-Hand* Hand::split() {
-    Hand* newHand = new Hand(this);
-    newHand->cards.push_back(cards.back());
-	cards.pop_back();
+Hand* Hand::split(QGraphicsPixmapItem* parent) {
+    Hand* newHand = new Hand(parent);
+    Card* oldCard = cards.back();
+    Card* newCard = new Card(oldCard, newHand);
+    newHand->cards.push_back(newCard);
+    qDebug() << "The New Hand's score is: " << newHand->recalculateScore();
+    cards.pop_back();
+    qDebug() << "The Old Hand's score is: " << recalculateScore();
+    delete oldCard;
+    oldCard = nullptr;
 	return newHand;
 }
 
@@ -172,4 +205,31 @@ void Hand::setCard(size_t i, Card* _card){
     cards[i] = _card;
     delete temp;
     temp = nullptr;
+}
+
+
+void Hand::repositionCards(){
+    for(size_t i = 0; i < cards.size(); i++){
+        cards[i]->setPos(0, (C_WIDTH/3)*static_cast<int>(i));
+    }
+    repositionScore();
+}
+
+void Hand::repositionScore(){
+    scoreLabel->setPlainText(QString::number(score));
+    int xPos = C_WIDTH + C_WIDTH/3*static_cast<int>(cards.size()-1);
+    scoreLabel->setPos(xPos-15, -5);
+}
+
+
+void Hand::dealerPositionCards(){
+    for(size_t i = 0; i < cards.size(); i++){
+        cards[i]->setX((C_WIDTH+5)*static_cast<int>(i));
+        dealerPositionScore();
+    }
+}
+void Hand::dealerPositionScore(){
+    scoreLabel->setPlainText(QString::number(score));
+    int xPos = (C_WIDTH+5)*static_cast<int>(cards.size());
+    scoreLabel->setPos(xPos-15, -5);
 }

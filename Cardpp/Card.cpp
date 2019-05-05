@@ -17,6 +17,14 @@ Card::Card(Card* card): QGraphicsPixmapItem(){
     setPixmap(QPixmap(getCardImageFileName()).scaled(C_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
 }
 
+Card::Card(Card* card, QGraphicsItem* parent): QGraphicsPixmapItem(parent){
+    index = card->getIndex();
+    suit = card->getSuit();
+    value = getValue(index);
+    hidden = card->isHidden();
+    setPixmap(QPixmap(getCardImageFileName()).scaled(C_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
+}
+
 Card::Card(const Card& _card){
     index = _card.getIndex();
     suit = _card.getSuit();
@@ -53,8 +61,17 @@ size_t Card::getIndex() const { return index; }
 size_t Card::getSuit() const { return suit; }
 int Card::getValue() const  { return value; }
 bool Card::isHidden() const { return hidden; }
-void Card::hideCard() { hidden = true; }
-void Card::showCard() { hidden = false; }
+void Card::hideCard(){
+    hidden = true;
+    updateCardImage();
+}
+void Card::showCard(){
+    hidden = false;
+    updateCardImage();
+}
+void Card::updateCardImage(){
+   setPixmap(QPixmap(getCardImageFileName()).scaled(C_WIDTH, C_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
+}
 
 
 void Card::print() const {
@@ -94,7 +111,7 @@ int Card::getCountValue() const {
 
 QString Card::getCardImageFileName(){
     if(!hidden)
-        return QString::fromStdString(":/cards/cards/" + SUIT_STRS[suit] + "-"
+        return QString::fromStdString(":/graphics/cards/" + SUIT_STRS[suit] + "-"
                                       + INDEX_STRS[index]  + ".png");
     else {
         return CARD_BACK;

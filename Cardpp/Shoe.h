@@ -13,7 +13,7 @@
 
 
 
-class Shoe : public QGraphicsRectItem
+class Shoe
 {
 public:
 	Shoe();

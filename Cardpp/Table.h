@@ -3,13 +3,14 @@
 
 #include "Player.h"
 #include "Shoe.h"
+#include "DecisionButton.h"
 #include "StaticVars.h"
 
-class Table :  public QObject, public QGraphicsRectItem
+class Table :  public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-	Table();
+    Table();
     Table(Shoe* shoe, int _active, int _control, int _strategy);
 	~Table();
 
@@ -45,14 +46,29 @@ public:
     bool split(size_t h, size_t p);
     void printWinners();
     void payInsurance();
+    std::vector<Player*> players;
+
+public slots:
+    void hitSlot();
+    void standSlot();
+    void ddSlot();
+    void splitSlot();
+
 
 private:
 	Shoe* shoe;
-	Player* dealer;
-	std::vector<Player*> players;
+    Player* dealer;
     size_t round;
     size_t numPlaying;
     size_t busts;
+
+    char userDecision;
+
+    DecisionButton* hitButton;
+    DecisionButton* standButton;
+    DecisionButton* ddButton;
+    DecisionButton* splitButton;
+
 };
 
 #endif //TABLE_H

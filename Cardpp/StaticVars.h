@@ -10,6 +10,7 @@
 #include <QDesktopWidget>
 #include <QTextEdit>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsView>
@@ -17,6 +18,12 @@
 #include <QRectF>
 #include <QPixmap>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsTextItem>
+#include <QPushButton>
+#include <QButtonGroup>
+#include <QtGui>
+#include <QLabel>
+#include <QColor>
 
 #include "mainwindow.h"
 
@@ -26,28 +33,36 @@
 #define INDEX_ERR 100
 
 static int W_WIDTH = 1200;
-static int W_HEIGHT = 625;
-static int C_WIDTH = 73;
-static int C_HEIGHT = 99;
-static int P_WIDTH = 210;
-static int P_HEIGHT = 270;
+static int W_HEIGHT = 800;
+static int T_WIDTH = 1200;
+static int T_HEIGHT = 800;
+static int C_WIDTH = 75;
+static int C_HEIGHT = 100;
+static int P_WIDTH = 200;
+static int P_HEIGHT = 300;
 static int D_WIDTH = 510;
 static int D_HEIGHT = 75;
+static int B_WIDTH = 80;
+static int B_HEIGHT = 40;
 
 static std::random_device rd;
 static std::mt19937 rng(rd());
 static std::uniform_int_distribution<int> uni(75, 125);
 
-static const QString CARD_BACK = ":/cards/cards/card_back.png";
+static const QString CARD_BACK = ":/graphics/cards/card_back.png";
 
 static const std::vector<std::string> INDEX_STRS =
     { "0", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 static const std::vector<std::string> SUIT_STRS =
     { "Spades", "Hearts", "Diamonds", "Clubs" };
 
-static const int PLAYER_XPOS[8] = {975, 975, 735, 495, 255, 15, 15, 345};
-static const int PLAYER_YPOS[8] = {45, 390, 390, 390, 390, 390, 45, 45};
+static const int PLAYER_XPOS[8] = {980, 980, 740, 500, 260, 20, 20, 340};
+static const int PLAYER_YPOS[8] = {80, 460, 460, 460, 460, 460, 80, 90};
 
+static const int BUTTON_XPOS[4] = {320, 480, 600, 800};
+static const int BUTTON_YPOS = 200;
+static const int BUTTON_WIDTH = 80;
+static const int BUTTON_HEIGHT = 40;
 
 static const char BASIC_STRAT_H[18][13] ={
     { 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H' },

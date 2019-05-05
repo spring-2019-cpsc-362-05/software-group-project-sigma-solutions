@@ -1,22 +1,33 @@
 #include "Table.h"
 
-Table::Table() : QObject(), QGraphicsRectItem()
+Table::Table() : QObject(), QGraphicsPixmapItem()
 {
 }
 
 Table::Table(Shoe* _shoe, int _active, int _control, int _strategy){
 	round = 1;
+    userDecision = 'N';
 	numPlaying = 0;
 	shoe = _shoe;
     busts = 0;
     for (int i = 0; i < MAX_PLAYERS; i++) {
-        players.push_back(new Player(false, i+1));
+        players.push_back(new Player(false, i+1, this));
     }
 	setPlaying(_active);
 	setPlayerControl(_control);
     setStrategy(_strategy);
-    dealer = new Player(true, 0);
-    setRect(0,0,W_WIDTH, W_HEIGHT);
+    dealer = new Player(true, 0, this);
+    setPixmap(QPixmap(":/graphics/other/table.png").scaled(T_WIDTH, T_HEIGHT, Qt::IgnoreAspectRatio,Qt::FastTransformation));
+    setPos(0,0);
+
+    hitButton = new DecisionButton('h', this);
+    connect(hitButton, SIGNAL(clicked()), this, SLOT(hitSlot()));
+    standButton = new DecisionButton('s', this);
+    connect(standButton, SIGNAL(clicked()), this, SLOT(standSlot()));
+    ddButton = new DecisionButton('d', this);
+    connect(ddButton, SIGNAL(clicked()), this, SLOT(ddSlot()));
+    splitButton = new DecisionButton('p', this);
+    connect(splitButton, SIGNAL(clicked()), this, SLOT(splitSlot()));
 }
 
 
@@ -27,10 +38,26 @@ Table::~Table(){
 	}
 }
 
+void Table::hitSlot(){
+    qDebug() << "HIT!";
+    userDecision = 'H';
+}
+void Table::standSlot(){
+    qDebug() << "STAND!";
+    userDecision = 'S';
+}
+void Table::ddSlot(){
+    qDebug() << "DOUBLE DOWN!";
+    userDecision = 'D';
+}
+void Table::splitSlot(){
+    qDebug() << "SPLIT!";
+    userDecision = 'P';
+}
+
+
 void Table::draw(QGraphicsScene* _scene){
-    qDebug() << "Adding Table to scene.";
     _scene->addItem(this);
-    qDebug() << "Added Table to scene.";
     dealer->draw(_scene);
     for (size_t i = 0; i < MAX_PLAYERS; i++) {
         if(players[i]->isPlaying()){
@@ -62,6 +89,8 @@ void Table::setPlaying(int _active) {
     for (size_t i = 0; i < MAX_PLAYERS; i++) {
 		if (((_active >> i) & 1) == 1) {
 			players[i]->activate();
+            players[static_cast<size_t>(i)]->setLabel();
+            players[static_cast<size_t>(i)]->setBankLabel();
 			numPlaying++;
 		}
 	}
@@ -116,14 +145,14 @@ void Table::placeBets() {
 void Table::initDeal() {
 	for (int i = 0; i <= MAX_PLAYERS * 2; i++) {
 		if (i == MAX_PLAYERS ) {
-			dealer->dealCard(0, shoe->dealHidden());
+            dealer->dealCard(0, shoe->dealHidden());
 		}
 		else {
 			if (players[i % (MAX_PLAYERS + 1)]->isPlaying())
 				players[i % (MAX_PLAYERS + 1)]->dealCard(0, shoe->deal());
 		}
 	}
-	dealer->dealCard(0, shoe->deal());
+    dealer->dealCard(0, shoe->deal());
 }
 
 size_t Table::playRound() {
@@ -325,24 +354,23 @@ void Table::userTurn(size_t h, size_t p) {
 		std::cout << "Recomended decision " << decisionRecommendation(h, p) << std::endl;
 		std::cout << "Player " << players[p]->getPosition() << " make a decision"
 			<< handInfoString(h, p) << decisionMenu(canDD, canSplit);
-		while (!valid) {
-			std::cin >> decision;
-            decision = static_cast<char>(toupper(decision));
+        while (!valid) {
+            decision = static_cast<char>(toupper(userDecision));
 			valid = validDecision(decision, canDD, canSplit);
 			if(!valid)
-				std::cout << "Please enter valid decision.\t" 
-				<< decisionMenu(canDD, canSplit);
+                qDebug() << "Please enter valid decision.";
 		}
-
 		turn = makeDecision(h, p, decision);
+        userDecision = 'N';
 	}
 	players[p]->print();
 }
 
 void Table::dealerTurn() {
-	std::cout << "\nShowing Dealer's Hole Card:\n";
+    std::cout << "\nShowing Dealer's Hole Card:\n";
     Card* temp = dealer->showHoleCard();
 	shoe->updateCounts(temp);
+    dealer->dealerPositionHand();
 	dealer->print();
 
 	if (busts < numPlaying) {
@@ -381,7 +409,7 @@ bool Table::doubleDown(size_t h, size_t p) {
 }
 
 bool Table::split(size_t h, size_t p) {
-	players[p]->split(h, players[p]->getBet());
+    players[p]->split(h, players[p]->getBet());
 	players[p]->printHand(h);
 	return true;
 }

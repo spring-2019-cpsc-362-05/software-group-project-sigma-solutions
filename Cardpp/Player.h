@@ -58,7 +58,13 @@ public:
 	void setBank(double _bank);
     void takeBet(size_t h, int _bet);
     std::string collectWinnings(double _bet);
-	
+    void setLabel();
+    void setBankLabel();
+
+    void repositionHands();
+    void dealerPositionHand();
+    void createNewHand();
+
 	void dealerCheat();
 private:
 	//True if player is a dealer
@@ -74,7 +80,11 @@ private:
 	int position;
     std::vector<Hand*> hands;
 	double bank;
-	int bet;
+    int bet;
+
+    QGraphicsTextItem* label;
+    QGraphicsTextItem* bankLabel;
+
 
     bool updateScore(size_t i, Card* card);
 };

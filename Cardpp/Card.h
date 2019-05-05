@@ -10,6 +10,7 @@ public:
     Card(QGraphicsItem* parent = nullptr);
     Card(const Card& _card);
     Card(Card* card);
+    Card(Card* card, QGraphicsItem* parent);
     Card(size_t _index, size_t _suit);
     Card operator=(const Card& _card);
     size_t getIndex() const;
@@ -22,6 +23,7 @@ public:
     bool setAceSoft();
     void print() const;
     void draw(QGraphicsScene* _scene);
+    void updateCardImage();
 
     QString getCardImageFileName();
     void addToScene(QGraphicsScene* scene);

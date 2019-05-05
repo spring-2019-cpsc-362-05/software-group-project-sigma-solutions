@@ -1,6 +1,6 @@
 #include "Shoe.h"
 
-Shoe::Shoe() : QGraphicsRectItem()
+Shoe::Shoe()
 {
 }
 
@@ -73,5 +73,9 @@ void Shoe::printCounts() const {
 
 void Shoe::updateCounts(Card* c) {
     runningCount += c->getCountValue();
-    trueCount = runningCount / (static_cast<int>(cards.size() / 52));
+    int decks = static_cast<int>(cards.size()) / 52;
+    if(decks == 0)
+        trueCount = runningCount;
+    else
+        trueCount = runningCount / decks;
 }

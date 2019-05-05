@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player() : QObject(), QGraphicsPixmapItem ()
+Player::Player() : QObject(), QGraphicsPixmapItem()
 {
 	dealer = false;
 	controlled = false;
@@ -9,7 +9,7 @@ Player::Player() : QObject(), QGraphicsPixmapItem ()
 	position = 0;
 	bank = DEFAULT_BANK;
 	bet = DEFAULT_BET;
-    std::vector<Hand> hands;
+    std::vector<Hand*> hands;
 }
 
 Player::Player(bool _dealer, int _position, QGraphicsItem* parent ): QGraphicsPixmapItem(parent)
@@ -29,6 +29,17 @@ Player::Player(bool _dealer, int _position, QGraphicsItem* parent ): QGraphicsPi
 	bank = DEFAULT_BANK;
 	bet = DEFAULT_BET;
     std::vector<Hand*> hands;
+    hands.push_back(new Hand(this));
+    label = new QGraphicsTextItem(this);
+    label->setPos(-5, -50);
+    label->setDefaultTextColor(Qt::cyan);
+    label->setFont(QFont("times", 16));
+    bankLabel = new QGraphicsTextItem(this);
+    bankLabel->setPos(-5, -30);
+    bankLabel->setDefaultTextColor(QColor(255,195,0));
+    bankLabel->setFont(QFont("times", 16));
+
+    //label->drawText(static_cast<int>(x()), static_cast<int>(y())-10, "Player" + QString(_position));
 }
 
 void Player::setUserControlled() { controlled = true; }
@@ -55,9 +66,9 @@ Player::~Player()
 void Player::draw(QGraphicsScene* _scene){
     qDebug() << "Added Player to scene.";
     _scene->addItem(this);
-    for(size_t i = 0; i < hands.size(); i++){
-        hands[i]->draw(_scene);
-    }
+ //   for(size_t i = 0; i < hands.size(); i++){
+//        hands[i]->draw(_scene);
+ //   }
 }
 
 bool Player::isDealer() const {	return dealer;}
@@ -151,8 +162,12 @@ void Player::reset() {
 
 
 bool Player::split(size_t h, int _bet) {
-    hands.push_back(hands[h]->split());
+    hands.push_back(hands[h]->split(this));
     hands.back()->addBet(_bet);
+    for(size_t i = 0; i < hands.size(); i++){
+        hands[i]->repositionCards();
+    }
+    repositionHands();
 	recalculateScores();
 	return true;
 }
@@ -164,13 +179,18 @@ void Player::recalculateScores(){
 
 void Player::dealCard(size_t h, Card* card) {
     while (hands.size() < (h + 1)) {
-        hands.push_back(new Hand(this));
+        createNewHand();
     }
 
     if (!card->isHidden())
         hands[h]->dealCard(card);
 	else
         hands[h]->dealHidden(card);
+
+    if(!dealer)
+        repositionHands();
+    else
+        dealerPositionHand();
 }
 
 bool Player::updateScore(size_t i, Card* card) {
@@ -190,4 +210,34 @@ void Player::dealerCheat() {
     hands[0]->getCard(0)->hideCard();
     hands[0]->setCard(1, new Card(1, 0));
     hands[0]->recalculateScore();
+}
+
+void Player::setLabel(){
+    label->setPlainText(QString("Player ") + QString::number(position));
+}
+
+void Player::setBankLabel(){
+    bankLabel->setPlainText(QString("Bank $") + QString::number(bank));
+}
+
+void Player::repositionHands(){
+    int yPos = 0;
+    for(size_t i = 0; i < hands.size(); i++){
+        yPos = (C_HEIGHT+10)*static_cast<int>(i);
+        hands[i]->setPos(0, yPos);
+    }
+}
+
+
+void Player::dealerPositionHand(){
+    hands[0]->dealerPositionCards();
+}
+
+
+void Player::createNewHand(){
+    Hand *temp = new Hand(this);
+    int yPos = (C_HEIGHT+10)*static_cast<int>(hands.size());
+    hands.push_back(temp);
+    temp->setY(yPos);
+    temp->repositionCards();
 }

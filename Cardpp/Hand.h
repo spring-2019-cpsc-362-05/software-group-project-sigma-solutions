@@ -8,7 +8,7 @@ class Hand :  public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    Hand(QGraphicsPixmapItem* parent);
+    Hand(QGraphicsItem* parent);
     Hand(const Hand& _hand);
     Hand(size_t _index);
 	~Hand();
@@ -27,7 +27,7 @@ public:
 	bool softenHand();
     bool updateScore(Card* card);
 	int recalculateScore();
-    Hand* split();
+    Hand* split(QGraphicsPixmapItem* parent);
 	void reset();
     void dealCard(Card* card);
     void dealHidden(Card* card);
@@ -38,6 +38,11 @@ public:
     void setCard(size_t i, Card* _card);
     void addBet(int _bet);
 
+    void repositionCards();
+    void repositionScore();
+
+    void dealerPositionCards();
+    void dealerPositionScore();
 
 private:
     std::vector<Card*> cards;
@@ -45,5 +50,7 @@ private:
 	int received;
 	int bet;
     size_t handIndex;
+
+    QGraphicsTextItem* scoreLabel;
 };
 

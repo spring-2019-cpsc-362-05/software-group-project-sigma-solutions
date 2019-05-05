@@ -26,6 +26,7 @@ CONFIG += c++11
 
 SOURCES += \
         Card.cpp \
+        DecisionButton.cpp \
         Game.cpp \
         Hand.cpp \
         Player.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
         mainwindow.cpp
 
 HEADERS += \
+        DecisionButton.h \
         Game.h \
         Hand.h \
         Player.h \
