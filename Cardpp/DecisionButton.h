@@ -12,13 +12,13 @@ public:
     DecisionButton(char c, QGraphicsItem* parent = nullptr);
 
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
-    void mouseHoverEnterEvent(QGraphicsSceneHoverEvent* event);
-    void mouseHoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
 
 signals:
     void clicked();
 private:
-    QGraphicsTextItem* buttonText;
+    char buttonChar;
 
 };
 

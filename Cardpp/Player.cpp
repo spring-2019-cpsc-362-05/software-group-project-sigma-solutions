@@ -1,4 +1,7 @@
 #include "Player.h"
+#include "Game.h"
+
+extern Game* game;
 
 Player::Player() : QObject(), QGraphicsPixmapItem()
 {
@@ -10,6 +13,16 @@ Player::Player() : QObject(), QGraphicsPixmapItem()
 	bank = DEFAULT_BANK;
 	bet = DEFAULT_BET;
     std::vector<Hand*> hands;
+}
+
+Player::Player(const Player& p){
+    dealer = p.isDealer();
+    controlled = p.isControlled();
+    counting = p.isCounting();
+    insurance = p.hasInsurance();
+    position = p.getPosition();
+    bank = p.getBank();
+    bet = p.getBet();
 }
 
 Player::Player(bool _dealer, int _position, QGraphicsItem* parent ): QGraphicsPixmapItem(parent)
@@ -26,8 +39,8 @@ Player::Player(bool _dealer, int _position, QGraphicsItem* parent ): QGraphicsPi
 	insurance = false;
 	playing = false;
 	position = _position;
-	bank = DEFAULT_BANK;
-	bet = DEFAULT_BET;
+    bank = game->startBank;
+    bet = game->minBet;
     std::vector<Hand*> hands;
     hands.push_back(new Hand(this));
     label = new QGraphicsTextItem(this);
@@ -99,8 +112,7 @@ void Player::takeBet(size_t h, int _bet){
     }
     bank -= _bet;
     hands[h]->addBet(bet);
-	std::cout << "Player " << position << " bets $" << std::fixed << bet
-		<< ". Bank is now $" << std::fixed << bank << std::endl;
+    setBankLabel();
 }
 
 bool Player::dealerHits() const {
@@ -197,8 +209,8 @@ bool Player::updateScore(size_t i, Card* card) {
     return hands[i]->updateScore(card);
 }
 
-bool Player::hasBlackjack(size_t i) const {
-    return hands[i]->hasBlackjack();
+bool Player::hasBlackjack() const {
+    return hands[0]->hasBlackjack();
 }
 
 void Player::setBet(int _bet) { bet = _bet; }
@@ -241,3 +253,4 @@ void Player::createNewHand(){
     temp->setY(yPos);
     temp->repositionCards();
 }
+

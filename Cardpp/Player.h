@@ -14,6 +14,7 @@ class Player : public QObject, public QGraphicsPixmapItem
     Q_OBJECT
 public:
 	Player();
+    Player(const Player& p);
     Player(bool _dealer, int _position, QGraphicsItem* parent=nullptr);
 	~Player();
 
@@ -35,7 +36,7 @@ public:
 	void recalculateScores();
     bool isSoft(size_t i) const;
     size_t getShowing() const;
-    bool hasBlackjack(size_t i) const;
+    bool hasBlackjack() const;
 
     Hand* getHand(size_t i);
     bool split(size_t h, int _bet);
@@ -66,6 +67,11 @@ public:
     void createNewHand();
 
 	void dealerCheat();
+
+
+    //GUI STUFF
+    void updateNumbers();
+
 private:
 	//True if player is a dealer
 	bool dealer;

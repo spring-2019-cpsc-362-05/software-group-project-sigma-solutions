@@ -24,6 +24,9 @@
 #include <QtGui>
 #include <QLabel>
 #include <QColor>
+#include <QAbstractTransition>
+#include <QEvent>
+#include <QThread>
 
 #include "mainwindow.h"
 
@@ -59,7 +62,7 @@ static const std::vector<std::string> SUIT_STRS =
 static const int PLAYER_XPOS[8] = {980, 980, 740, 500, 260, 20, 20, 340};
 static const int PLAYER_YPOS[8] = {80, 460, 460, 460, 460, 460, 80, 90};
 
-static const int BUTTON_XPOS[4] = {320, 480, 600, 800};
+static const int BUTTON_XPOS[5] = {320, 480, 600, 800, 520};
 static const int BUTTON_YPOS = 200;
 static const int BUTTON_WIDTH = 80;
 static const int BUTTON_HEIGHT = 40;

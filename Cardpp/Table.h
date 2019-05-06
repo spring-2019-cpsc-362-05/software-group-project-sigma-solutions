@@ -26,6 +26,13 @@ public:
 	void dealerTurn();
 	void placeBets();
 
+    bool dealerBJ();
+    void increaseBusts();
+    int getBusts();
+
+    int getRunningCount();
+    int getTrueCount();
+
     bool makeDecision(size_t h, size_t p, char decision);
 	bool validDecision(char decision, bool canDD, bool canSplit);
 	std::string decisionMenu(bool canDD, bool canSplit);
@@ -46,13 +53,57 @@ public:
     bool split(size_t h, size_t p);
     void printWinners();
     void payInsurance();
-    std::vector<Player*> players;
+
+    Card* dealCard();
+
+    DecisionButton* hitButton;
+    DecisionButton* standButton;
+    DecisionButton* ddButton;
+    DecisionButton* splitButton;
+    DecisionButton* betButton;
+
+    DecisionButton* increaseBetButton;
+    DecisionButton* decreaseBetButton;
+
+
+    QGraphicsTextItem* mainMessageText;
+
+
+    //GUI STUFF
+    void updateMessage(const QString& str);
+    void updateBetText();
+
+    void activateDecisionButtons(bool canDD, bool canSplit);
+    void deactivateDecisionButtons();
+
+    void activateBettingButtons();
+    void deactivateBettingButtons();
+
+    void makeConnections();
+    QString decisionToQString(char decision);
 
 public slots:
+    void userBetting();
+    void userDeciding();
+
     void hitSlot();
     void standSlot();
     void ddSlot();
     void splitSlot();
+
+    void betIncreaseSlot();
+    void betDecreaseSlot();
+
+    void transitionToDealPhase();
+    void transitionToDecisionPhase();
+
+
+signals:
+    void UserBetSignal();
+    void BetPhaseComplete();
+    void DealingComplete();
+    void UserDecisionSignal();
+    void DecisionPhaseComplete();
 
 
 private:
@@ -61,13 +112,9 @@ private:
     size_t round;
     size_t numPlaying;
     size_t busts;
+    std::vector<Player*> players;
 
-    char userDecision;
-
-    DecisionButton* hitButton;
-    DecisionButton* standButton;
-    DecisionButton* ddButton;
-    DecisionButton* splitButton;
+    QGraphicsTextItem* userBetText;
 
 };
 

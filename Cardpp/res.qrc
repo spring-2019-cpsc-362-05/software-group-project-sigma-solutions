@@ -56,5 +56,19 @@
         <file>other/table.png</file>
         <file>other/hand.png</file>
         <file>other/button.png</file>
+        <file>other/hitButton.png</file>
+        <file>other/hitButtonHover.png</file>
+        <file>other/ddButton.png</file>
+        <file>other/ddButtonHover.png</file>
+        <file>other/splitButton.png</file>
+        <file>other/splitButtonHover.png</file>
+        <file>other/standButton.png</file>
+        <file>other/standButtonHover.png</file>
+        <file>other/betButton.png</file>
+        <file>other/betButtonHover.png</file>
+        <file>other/decrementButton.png</file>
+        <file>other/decrementButtonHover.png</file>
+        <file>other/incrementButton.png</file>
+        <file>other/incrementButtonHover.png</file>
     </qresource>
 </RCC>
