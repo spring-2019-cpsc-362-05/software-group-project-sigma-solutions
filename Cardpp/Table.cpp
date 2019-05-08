@@ -11,6 +11,8 @@ Table::Table(Shoe* _shoe, int _active, int _control, int _strategy){
     round = 1;
 	numPlaying = 0;
 	shoe = _shoe;
+    int shuffleTimes = 3 + (_active + _control + _strategy)*uni(rng) % 8;
+    shoe->shuffle(shuffleTimes);
     busts = 0;
     for (int i = 0; i < MAX_PLAYERS; i++) {
         players.push_back(new Player(false, i+1, this));
@@ -26,6 +28,15 @@ Table::Table(Shoe* _shoe, int _active, int _control, int _strategy){
     mainMessageText->setFont(QFont("Times", 25));
     mainMessageText->setDefaultTextColor(QColor(Qt::cyan));
     mainMessageText->setPos(W_WIDTH/2 - mainMessageText->boundingRect().width()/2,0);
+
+    hitButton = nullptr;
+    standButton = nullptr;
+    ddButton = nullptr;
+    splitButton = nullptr;
+
+    betButton = nullptr;
+    increaseBetButton = nullptr;
+    decreaseBetButton = nullptr;
 }
 
 
@@ -34,11 +45,12 @@ void Table::makeConnections(){
     QObject::connect(this, SIGNAL(BetPhaseComplete()), this, SLOT(transitionToDealPhase()));
     QObject::connect(this, SIGNAL(DealingComplete()), this, SLOT(transitionToDecisionPhase()));
     QObject::connect(this, SIGNAL(UserDecisionSignal()), this, SLOT(userDeciding()));
+    QObject::connect(this, SIGNAL(RoundComplete()), this, SLOT(transitionToBettingPhase()));
 }
 
 Table::~Table(){
 	while(!players.empty()) {
-		delete players.back();
+        delete players.back();
 		players.pop_back();
 	}
 }
@@ -143,12 +155,15 @@ void Table::placeBets() {
         game->action = players[i];
         if(game->action->isPlaying()){
             if(game->action->isControlled()){
+                QString recommendation = QString("RC = ") + QString::number(getRunningCount())
+                        + QString(" TC = ") + QString::number(getTrueCount())
+                        + QString(" We recomended Player ") + QString::number(players[i]->getPosition())
+                        + QString(" to bet $") + QString::number(bettingRecommendation(i));
+                updateMessage(recommendation);
                 emit UserBetSignal();
-                qDebug() << "User Player " << game->action->getPosition() << "bets.";
             }
             else {
                 game->action->takeBet(0, game->userBet);
-                qDebug() << "Computer Player " << game->action->getPosition() << "bets.";
             }
         }
     }
@@ -156,8 +171,6 @@ void Table::placeBets() {
 }
 
 void Table::userBetting(){
-    QString str = QString("Player ") + QString::number(game->action->getPosition()) + QString(" place bet.");
-    updateMessage(str);
     game->pause->exec();
     game->action->takeBet(0, game->userBet);
     game->userBet = game->minBet;
@@ -177,14 +190,13 @@ void Table::initDeal() {
             if (players[i % (MAX_PLAYERS + 1)]->isPlaying()){
                 players[i % (MAX_PLAYERS + 1)]->dealCard(0, shoe->deal());
             }
-		}
+        }
+        game->wait(1000);
     }
     dealer->dealCard(0, shoe->deal());
 }
 
 size_t Table::playRound() {
-    size_t remainingCards = shoe->getSize();
-
     initDeal();
 
     size_t dealerShowing = dealer->getShowing();
@@ -211,14 +223,11 @@ size_t Table::playRound() {
 		dealer->print();
 		std::cout << "Dealer has Blackjack!\n";
 		payInsurance();
-	}
+    }
 
-    for (size_t i = 0; i < MAX_PLAYERS; i++) {
-		players[i]->reset();
-	}
-	dealer->reset();
-	round++;
-	return shoe->getSize();
+    emit RoundComplete();
+    round++;
+    return shoe->getSize();
 }
 
 bool Table::offerInsurance() {
@@ -355,7 +364,7 @@ void Table::userTurn(size_t h, size_t p) {
     bool turn = true,
         canDD = true,
         canSplit = true;
-	
+	   
     if (players[p]->getHand(h)->hasBlackjack()) {
         turn = false;
 	}
@@ -365,16 +374,15 @@ void Table::userTurn(size_t h, size_t p) {
         canSplit = players[p]->canSplit(h);
 
         QString recommendation = QString("RC = ") + QString::number(getRunningCount())
-                + QString("TC = ") + QString::number(getTrueCount())
-                + QString("We recomended Player ") + QString::number(players[p]->getPosition())
+                + QString(" TC = ") + QString::number(getTrueCount())
+                + QString(" We recomended Player ") + QString::number(players[p]->getPosition())
                 + QString(" to ") + decisionToQString(decisionRecommendation(h, p));
         updateMessage(recommendation);
-
         activateDecisionButtons(canDD, canSplit);
-
         emit UserDecisionSignal();
         turn = makeDecision(h, p, game->userDecision);
-        game->userDecision = 'N';
+        game->userDecision = 'N';        
+        deactivateDecisionButtons();
     }
 }
 
@@ -402,8 +410,7 @@ void Table::dealerTurn() {
 }
 
 bool Table::hit(size_t h, size_t p) {
-	players[p]->dealCard(h, shoe->deal());
-	players[p]->printHand(h);
+    players[p]->dealCard(h, shoe->deal());
     players[p]->getHand(h)->incReceived();
     if (players[p]->getHand(h)->getScore() >= 21) {
 		return false;
@@ -425,7 +432,6 @@ bool Table::split(size_t h, size_t p) {
 }
 
 void Table::printWinners() {
-	std::cout << "\nResults:\n";
     int dealerScore = dealer->getHand(0)->getScore();
 	int score = 0;
     bool dealerBJ = dealer->getHand(0)->hasBlackjack(),
@@ -441,66 +447,43 @@ void Table::printWinners() {
                 playerBJ = players[p]->getHand(h)->hasBlackjack();
 				//Dealer has uninsureable Blackjack
 				if (dealerBJ) {
-					if (playerBJ) {
-						std::cout << "Player " << players[p]->getPosition()
-							<< " has Blackjack too and pushes"; //doesn't lose bet
+                    if (playerBJ) {
 						winnings = bet;
 					}
-					else {
-						std::cout << "Player " << players[p]->getPosition()
-							<< " loses to Blackjack";
+                    else {
 					}
 				}
 				//Dealer does not have Blackjack
 				else {
-					if (playerIns) {
-						std::cout << "Player " << players[p]->getPosition()
-							<< " loses insurance bet.\n";
+                    if (playerIns) {
 					}
-					if (playerBJ && players[p]->getNumHands() == 1) {
-						std::cout << "Player " << players[p]->getPosition()
-							<< " wins with Blackjack";
+                    if (playerBJ && players[p]->getNumHands() == 1) {
 						winnings = bet * 2.5;
 					}
 					else if (dealerScore > 21) {
                         if ((score = players[p]->getHand(h)->getScore()) <= 21) {
-							std::cout << "Player " << players[p]->getPosition()
-								<< " wins from dealer bust";
 							winnings = bet * 2;
 						}
-						else {
-							std::cout << "Player " << players[p]->getPosition()
-								<< " busted with " << score;
+                        else {
 						}
 					}
 					else {
                         if ((score = players[p]->getHand(h)->getScore()) > dealerScore && score <= 21) {
-							std::cout << "Player " << players[p]->getPosition()
-								<< " wins with " << score;
 							winnings = bet * 2;
 						}
-						else if (score == dealerScore) {
-							std::cout << "Player " << players[p]->getPosition()
-								<< " pushes";
+                        else if (score == dealerScore) {
 							winnings = bet;
 						}
-						else if (score > 21) {
-							std::cout << "Player " << players[p]->getPosition()
-								<< " busted with " << score;
+                        else if (score > 21) {
 						}
-						else {
-							std::cout << "Player " << players[p]->getPosition()
-								<< " loses with " << score;
+                        else {
 						}
 					}
 				}
-				std::cout << std::fixed
-					<< players[p]->collectWinnings(winnings) 
-					<< handInfoString(h, p) << std::endl;
+                players[p]->collectWinnings(winnings);
 			}
 		}
-	}
-	std::cout << std::endl;
+    }
 }
 
 //Insured Blackjack
@@ -702,6 +685,29 @@ void Table::transitionToDealPhase(){
 }
 
 void Table::transitionToDecisionPhase(){
+
+}
+
+
+void Table::transitionToBettingPhase(){
+    int dealerScore = dealer->getScore(0);
+    QString str = QString("Dealer has ");
+    if(dealerBJ()){
+        str += "Blackjack!";
+    }
+    else
+        str += QString::number(dealerScore) + ".";
+
+    if(dealerScore > 21)
+        str += QString(" Dealer busts!");
+
+    updateMessage(str);
+    game->wait(5000);
+    deactivateDecisionButtons();
+    reset();
+    updateMessage(QString("Round ") + QString::number(round));
+    activateBettingButtons();
+    game->action = players[0];
 }
 
 void Table::activateBettingButtons(){
@@ -763,6 +769,26 @@ void Table::activateDecisionButtons(bool canDD, bool canSplit){
 }
 
 void Table::deactivateDecisionButtons(){
+    hitButton->disconnect();
+    game->scene->removeItem(hitButton);
+    delete hitButton;
+    hitButton = nullptr;
+    standButton->disconnect();
+    game->scene->removeItem(standButton);
+    delete standButton;
+    standButton = nullptr;
+    if(ddButton != nullptr){
+        game->scene->removeItem(ddButton);
+        ddButton->disconnect();
+        delete ddButton;
+        ddButton = nullptr;
+    }
+    if(splitButton != nullptr){
+        game->scene->removeItem(splitButton);
+        splitButton->disconnect();
+        delete splitButton;
+        splitButton = nullptr;
+    }
 }
 
 void Table::updateMessage(const QString& str){
@@ -775,4 +801,11 @@ void Table::updateBetText(){
     userBetText->setPlainText(str);
     userBetText->setPos(BUTTON_XPOS[4] + BUTTON_WIDTH - userBetText->boundingRect().width()/2,
             BUTTON_YPOS - userBetText->boundingRect().height());
+}
+
+void Table::reset(){
+    for(size_t i = 0; i < MAX_PLAYERS; i++){
+        players[i]->reset();
+    }
+    dealer->reset();
 }

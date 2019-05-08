@@ -1,5 +1,7 @@
 #include "Hand.h"
+#include "Game.h"
 
+extern Game* game;
 
 Hand::Hand(QGraphicsItem* parent) : QObject(), QGraphicsPixmapItem(parent)
 {
@@ -177,6 +179,9 @@ void Hand::dealHidden(Card* card) {
 }
 
 void Hand::reset() {
+    for(size_t i = 0; i < cards.size(); i++)
+        game->scene->removeItem(cards[i]);
+    scoreLabel->setPlainText("");
 	cards.clear();
 	score = 0;
 	received = 0;

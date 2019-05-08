@@ -82,6 +82,8 @@ public:
     void makeConnections();
     QString decisionToQString(char decision);
 
+    void reset();
+
 public slots:
     void userBetting();
     void userDeciding();
@@ -96,6 +98,7 @@ public slots:
 
     void transitionToDealPhase();
     void transitionToDecisionPhase();
+    void transitionToBettingPhase();
 
 
 signals:
@@ -104,6 +107,7 @@ signals:
     void DealingComplete();
     void UserDecisionSignal();
     void DecisionPhaseComplete();
+    void RoundComplete();
 
 
 private:

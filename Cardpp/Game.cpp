@@ -10,45 +10,46 @@ Game::Game(QWidget* parent) : QGraphicsView(parent)
     scene->setSceneRect(0,0,W_WIDTH, W_HEIGHT);
     setScene(scene);
 
-    betPlaced = false;
-    userBet = minBet;
-    userDecision = '\0';
-}
+    active = 1;
+    control = 1;
+    strategy = 1;
+    numDecks = 4;
 
-void Game::start(int numDecks, int active, int control, int strategy){
-    minBet = 5;
-    userBet = minBet;
-    startBank = 1000.00;
-    shoe = new Shoe(numDecks);
-    table = new Table(shoe, active, control, strategy);
+    shoe = nullptr;
+    table = nullptr;
     action = nullptr;
-    betPlaced = false;
-    scene->addItem(table);
+    currentHand = nullptr;
+
     pause = new QEventLoop();
 }
 
+void Game::start(){
+    userBet  = minBet;
+    betPlaced = false;
 
+    userDecision = '\0';
+
+    shoe = new Shoe(numDecks);
+    table = new Table(shoe, active, control, strategy);
+    scene->addItem(table);
+}
 
 void Game::run(){
-
     size_t remainingCards = shoe->getSize();
     size_t numPlaying = table->getNumPlaying();
     int cutCard = uni(rng);
 
-    //while ((static_cast<int>(remainingCards) - (static_cast<int>(numPlaying) + 1) * 3) > cutCard
-    //	&& table->getNumPlaying() > 0) {
     table->activateBettingButtons();
     table->makeConnections();
 
+    while ((static_cast<int>(remainingCards) - (static_cast<int>(numPlaying) + 1) * 3) > cutCard
+        && table->getNumPlaying() > 0)
+    {
         table->placeBets();
-        table->playRound();
-        //if (table->getNumPlaying() > 0)
-            //remainingCards = table->playRound();
-
-        /*
+        if (table->getNumPlaying() > 0)
+            remainingCards = table->playRound();
     }
-
-    QString endStr;
+        QString endStr;
     if (table->getNumPlaying() > 0) {
          endStr = QString("Only ")+ QString::number(remainingCards - cutCard)
                  + QString(" cards until cut card. Ending game.");
@@ -57,10 +58,14 @@ void Game::run(){
         endStr = QString("Everyone is out of money. Ending game.");
 
     table->updateMessage(endStr);
-*/
 }
 
+void Game::wait(int msec){
+    qDebug() << "Waiting for " << msec << " miliseconds.";
+    QTimer::singleShot(msec, pause, SLOT(quit()));
+    pause->exec();
 
+}
 
 /*
 

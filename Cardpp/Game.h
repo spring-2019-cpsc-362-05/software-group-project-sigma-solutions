@@ -13,7 +13,7 @@ class Game: public QGraphicsView
     Q_OBJECT
 public:
     Game(QWidget* parent = nullptr);
-    void start(int numDecks, int active, int control, int strategy);
+    void start();
     void placeBets();
     void initDeal();
 
@@ -22,6 +22,8 @@ public:
     void playerTurn();
     void userTurn();
     void computerTurn();
+
+    void wait(int msec);
 
 
     void run();
@@ -33,6 +35,12 @@ public:
     Shoe* shoe;
     Player* action;
     Hand* currentHand;
+    int active;
+    int control;
+    int numDecks;
+    int strategy;
+
+
     int minBet;
     double startBank;
 

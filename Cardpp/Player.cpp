@@ -167,8 +167,8 @@ void Player::reset() {
     for (size_t i = 0; i < hands.size(); i++) {
         hands[i]->reset();
 	}
-	hands.clear();
-	bet = DEFAULT_BET;
+    hands.clear();
+    bet = game->minBet;
 	insurance = false;
 }
 

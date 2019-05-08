@@ -33,6 +33,7 @@ SOURCES += \
         Shoe.cpp \
         Table.cpp \
         main.cpp \
+        mainmenu.cpp \
         mainwindow.cpp
 
 HEADERS += \
@@ -43,10 +44,12 @@ HEADERS += \
         Shoe.h \
         Table.h \
         Card.h \
+        mainmenu.h \
         mainwindow.h \
         StaticVars.h
 
 FORMS += \
+        mainmenu.ui \
         mainwindow.ui
 
 # Default rules for deployment.
@@ -56,3 +59,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     res.qrc
+
+DISTFILES +=
